@@ -38,5 +38,5 @@ if test "$PHP_OPENCL" != "no"; then
   export LIBS="$OLD_LIBS"
 
   PHP_SUBST(OPENCL_SHARED_LIBADD)
-  PHP_NEW_EXTENSION(opencl, opencl.c , $ext_shared)
+  PHP_NEW_EXTENSION(opencl, opencl.c platform.c device.c, $ext_shared)
 fi
