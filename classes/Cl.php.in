@@ -1,0 +1,41 @@
+<?php
+
+class Cl
+{
+    /* CONSTANTS */
+
+    public static function createSomeContext()
+    {
+        $platforms = Platform::getPlatforms();
+        foreach ($platforms as $platform) {
+            $devices = $platform->getDevices(self::DEVICE_TYPE_ALL);
+            foreach ($devices as $device) {
+                return new Context($device);
+            }
+        }
+        return null;
+    }
+
+    public static function loadClass($name)
+    {
+        if (strncmp($name, 'Cl\\', 3) === 0) {
+            include __DIR__ . '/' . str_replace('\\', '/', $name) . '.php';
+        }
+    }
+
+    public static function registerAutoload()
+    {
+        spl_autoload_register(array(__CLASS__, 'loadClass'));
+    }
+
+    public static function createException($code, $message = null)
+    {
+        if ($code < 0) {
+            if ($code > self::CL_INVALID_VALUE) {
+                return new \RuntimeException($message, $code);
+            }
+            return new \InvalidArgumentException($message, $code);
+        }
+        return new \Exception($message, $code);
+    }
+}
