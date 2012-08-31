@@ -29,9 +29,34 @@ static const phpcl_platform_info_param_t platform_info_list[] = {
 };
 
 /* }}} */
-/* {{{ function prototypes */
+/* {{{ phpcl_get_platform_info() */
 
-static zval *phpcl_get_platform_info(cl_platform_id platform TSRMLS_DC);
+static zval *phpcl_get_platform_info(cl_platform_id platform TSRMLS_DC)
+{
+	const phpcl_platform_info_param_t *param = platform_info_list;
+	cl_int err = CL_SUCCESS;
+	char buf[1024] = { 0 };
+	size_t len = 0;
+	zval *zinfo;
+
+	MAKE_STD_ZVAL(zinfo);
+	array_init_size(zinfo, 8);
+
+	snprintf(buf, sizeof(buf), "%p", platform);
+	add_assoc_string(zinfo, "id", buf, 1);
+
+	while (param->key != NULL) {
+		err = clGetPlatformInfo(platform, param->name, sizeof(buf), buf, &len);
+		if (err == CL_SUCCESS) {
+			add_assoc_stringl(zinfo, param->key, buf, len, 1);
+		} else {
+			add_assoc_null(zinfo, param->key);
+		}
+		param++;
+	}
+
+	return zinfo;
+}
 
 /* }}} */
 /* {{{ array cl_get_platform_ids(void) */
@@ -103,36 +128,6 @@ PHP_FUNCTION(cl_get_platform_info)
 	if (platform_info) {
 		RETURN_ZVAL(platform_info, 0, 1);
 	}
-}
-
-/* }}} */
-/* {{{ phpcl_get_platform_info() */
-
-static zval *phpcl_get_platform_info(cl_platform_id platform TSRMLS_DC)
-{
-	const phpcl_platform_info_param_t *param = platform_info_list;
-	cl_int err = CL_SUCCESS;
-	char buf[1024] = { 0 };
-	size_t len = 0;
-	zval *zinfo;
-
-	MAKE_STD_ZVAL(zinfo);
-	array_init_size(zinfo, 8);
-
-	snprintf(buf, sizeof(buf), "%p", platform);
-	add_assoc_string(zinfo, "id", buf, 1);
-
-	while (param->key != NULL) {
-		err = clGetPlatformInfo(platform, param->name, sizeof(buf), buf, &len);
-		if (err == CL_SUCCESS) {
-			add_assoc_stringl(zinfo, param->key, buf, len, 1);
-		} else {
-			add_assoc_null(zinfo, param->key);
-		}
-		param++;
-	}
-
-	return zinfo;
 }
 
 /* }}} */

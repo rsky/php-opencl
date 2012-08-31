@@ -110,98 +110,6 @@ static const phpcl_device_info_param_t device_info_list[] = {
 };
 
 /* }}} */
-/* {{{ function prototypes */
-
-static zval *phpcl_get_device_info(cl_device_id device TSRMLS_DC);
-
-/* }}} */
-/* {{{ array cl_get_device_ids([resource cl_platform_id platform[, int device_type]]) */
-
-PHP_FUNCTION(cl_get_device_ids)
-{
-	zval *zid = NULL;
-	cl_platform_id platform = NULL;
-	long ltype = 0L;
-	cl_device_type device_type = CL_DEVICE_TYPE_DEFAULT;
-
-	cl_int err = CL_SUCCESS;
-	cl_uint num_entries = 0;
-	cl_device_id *devices = NULL;
-	cl_uint index = 0;
-
-	RETVAL_FALSE;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	                          "|r!l", &zid, &ltype) == FAILURE) {
-		return;
-	}
-	if (zid) {
-		ZEND_FETCH_RESOURCE(platform, cl_platform_id, &zid, -1,
-		                    "cl_platform_id", phpcl_le_platform());
-	}
-	if (ZEND_NUM_ARGS() == 2) {
-		device_type = (cl_device_type)ltype;
-	}
-
-	err = clGetDeviceIDs(platform, device_type, 0, NULL, &num_entries);
-	if (err != CL_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			"clGetDeviceIDs() failed [%s]", phpcl_errstr(err));
-		efree(devices);
-		return;
-	}
-
-	devices = ecalloc(num_entries, sizeof(cl_device_id));
-	if (!devices) {
-		return;
-	}
-
-	err = clGetDeviceIDs(platform, device_type, num_entries, devices, NULL);
-	if (err != CL_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			"clGetDeviceIDs() failed [%s]", phpcl_errstr(err));
-		efree(devices);
-		return;
-	}
-
-	array_init_size(return_value, num_entries);
-
-	for (index = 0; index < num_entries; index++) {
-		cl_device_id device = devices[index];
-		zval *entry;
-		MAKE_STD_ZVAL(entry);
-		ZEND_REGISTER_RESOURCE(entry, device, phpcl_le_device());
-		add_next_index_zval(return_value, entry);
-	}
-
-	efree(devices);
-}
-
-/* }}} */
-/* {{{ array cl_get_device_info(resource cl_device_id device) */
-
-PHP_FUNCTION(cl_get_device_info)
-{
-	zval *zid = NULL;
-	cl_device_id device = NULL;
-	zval *device_info = NULL;
-
-	RETVAL_FALSE;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	                          "r", &zid) == FAILURE) {
-		return;
-	}
-	ZEND_FETCH_RESOURCE(device, cl_device_id, &zid, -1,
-	                    "cl_device_id", phpcl_le_device());
-
-	device_info = phpcl_get_device_info(device TSRMLS_CC);
-	if (device_info) {
-		RETURN_ZVAL(device_info, 0, 1);
-	}
-}
-
-/* }}} */
 /* {{{ phpcl_get_device_info() */
 
 static zval *phpcl_get_device_info(cl_device_id device TSRMLS_DC)
@@ -335,6 +243,93 @@ static zval *phpcl_get_device_info(cl_device_id device TSRMLS_DC)
 	}
 
 	return zinfo;
+}
+
+/* }}} */
+/* {{{ array cl_get_device_ids([resource cl_platform_id platform[, int device_type]]) */
+
+PHP_FUNCTION(cl_get_device_ids)
+{
+	zval *zid = NULL;
+	cl_platform_id platform = NULL;
+	long ltype = 0L;
+	cl_device_type device_type = CL_DEVICE_TYPE_DEFAULT;
+
+	cl_int err = CL_SUCCESS;
+	cl_uint num_entries = 0;
+	cl_device_id *devices = NULL;
+	cl_uint index = 0;
+
+	RETVAL_FALSE;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	                          "|r!l", &zid, &ltype) == FAILURE) {
+		return;
+	}
+	if (zid) {
+		ZEND_FETCH_RESOURCE(platform, cl_platform_id, &zid, -1,
+		                    "cl_platform_id", phpcl_le_platform());
+	}
+	if (ZEND_NUM_ARGS() == 2) {
+		device_type = (cl_device_type)ltype;
+	}
+
+	err = clGetDeviceIDs(platform, device_type, 0, NULL, &num_entries);
+	if (err != CL_SUCCESS) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+			"clGetDeviceIDs() failed [%s]", phpcl_errstr(err));
+		efree(devices);
+		return;
+	}
+
+	devices = ecalloc(num_entries, sizeof(cl_device_id));
+	if (!devices) {
+		return;
+	}
+
+	err = clGetDeviceIDs(platform, device_type, num_entries, devices, NULL);
+	if (err != CL_SUCCESS) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+			"clGetDeviceIDs() failed [%s]", phpcl_errstr(err));
+		efree(devices);
+		return;
+	}
+
+	array_init_size(return_value, num_entries);
+
+	for (index = 0; index < num_entries; index++) {
+		cl_device_id device = devices[index];
+		zval *entry;
+		MAKE_STD_ZVAL(entry);
+		ZEND_REGISTER_RESOURCE(entry, device, phpcl_le_device());
+		add_next_index_zval(return_value, entry);
+	}
+
+	efree(devices);
+}
+
+/* }}} */
+/* {{{ array cl_get_device_info(resource cl_device_id device) */
+
+PHP_FUNCTION(cl_get_device_info)
+{
+	zval *zid = NULL;
+	cl_device_id device = NULL;
+	zval *device_info = NULL;
+
+	RETVAL_FALSE;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	                          "r", &zid) == FAILURE) {
+		return;
+	}
+	ZEND_FETCH_RESOURCE(device, cl_device_id, &zid, -1,
+	                    "cl_device_id", phpcl_le_device());
+
+	device_info = phpcl_get_device_info(device TSRMLS_CC);
+	if (device_info) {
+		RETURN_ZVAL(device_info, 0, 1);
+	}
 }
 
 /* }}} */
