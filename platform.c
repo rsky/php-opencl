@@ -19,43 +19,26 @@ typedef struct {
 /* }}} */
 /* {{{ globals */
 
-static const phpcl_platform_info_param_t platform_info_list[] = {
-	{ "profile",    CL_PLATFORM_PROFILE    },
-	{ "version",    CL_PLATFORM_VERSION    },
-	{ "name",       CL_PLATFORM_NAME       },
-	{ "vendor",     CL_PLATFORM_VENDOR     },
-	{ "extensions", CL_PLATFORM_EXTENSIONS },
+static const phpcl_info_param_t platform_info_params[] = {
+	{ "profile",    CL_PLATFORM_PROFILE,    INFO_TYPE_STRING },
+	{ "version",    CL_PLATFORM_VERSION,    INFO_TYPE_STRING },
+	{ "name",       CL_PLATFORM_NAME,       INFO_TYPE_STRING },
+	{ "vendor",     CL_PLATFORM_VENDOR,     INFO_TYPE_STRING },
+	{ "extensions", CL_PLATFORM_EXTENSIONS, INFO_TYPE_STRING },
 	{ NULL, 0 }
 };
 
 /* }}} */
 /* {{{ phpcl_get_platform_info() */
 
-static zval *phpcl_get_platform_info(cl_platform_id platform TSRMLS_DC)
+static cl_int phpcl_get_platform_info(cl_platform_id platform,
+                                      void *reserved __attribute__ ((unused)),
+                                      cl_platform_info name,
+                                      size_t value_size,
+                                      void *value,
+                                      size_t *value_size_ret)
 {
-	const phpcl_platform_info_param_t *param = platform_info_list;
-	cl_int err = CL_SUCCESS;
-	char buf[1024] = { 0 };
-	size_t len = 0;
-	zval *zinfo;
-
-	MAKE_STD_ZVAL(zinfo);
-	array_init_size(zinfo, 8);
-
-	snprintf(buf, sizeof(buf), "%p", platform);
-	add_assoc_string(zinfo, "id", buf, 1);
-
-	while (param->key != NULL) {
-		err = clGetPlatformInfo(platform, param->name, sizeof(buf), buf, &len);
-		if (err == CL_SUCCESS) {
-			add_assoc_stringl(zinfo, param->key, buf, len, 1);
-		} else {
-			add_assoc_null(zinfo, param->key);
-		}
-		param++;
-	}
-
-	return zinfo;
+	return clGetPlatformInfo(platform, name, value_size, value, value_size_ret);
 }
 
 /* }}} */
@@ -111,9 +94,10 @@ PHP_FUNCTION(cl_get_platform_ids)
 
 PHP_FUNCTION(cl_get_platform_info)
 {
+	const phpcl_info_param_t *param = platform_info_params;
 	zval *zid = NULL;
 	cl_platform_id platform = NULL;
-	zval *platform_info = NULL;
+	char buf[64] = {0};
 
 	RETVAL_FALSE;
 
@@ -124,9 +108,20 @@ PHP_FUNCTION(cl_get_platform_info)
 	ZEND_FETCH_RESOURCE(platform, cl_platform_id, &zid, -1,
 	                    "cl_platform_id", phpcl_le_platform());
 
-	platform_info = phpcl_get_platform_info(platform TSRMLS_CC);
-	if (platform_info) {
-		RETURN_ZVAL(platform_info, 0, 1);
+	array_init_size(return_value, 8);
+	snprintf(buf, sizeof(buf), "%p", platform);
+	add_assoc_string(return_value, "id", buf, 1);
+
+	while (param->key != NULL) {
+		zval *entry = phpcl_get_info(
+			(phpcl_get_info_func_t)phpcl_get_platform_info, NULL,
+			platform, NULL, param TSRMLS_CC);
+		if (entry) {
+			add_assoc_zval(return_value, param->key, entry);
+		} else {
+			add_assoc_null(return_value, param->key);
+		}
+		param++;
 	}
 }
 

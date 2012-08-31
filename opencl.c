@@ -766,6 +766,98 @@ static void phpcl_release_sampler(phpcl_sampler_t *ptr TSRMLS_DC)
 }
 
 // }}}
+/* {{{ phpcl_get_info() */
+
+zval *phpcl_get_info(phpcl_get_info_func_t get_info,
+                     phpcl_get_info_ex_func_t get_info_ex,
+                     void *obj1, void *obj2,
+                     const phpcl_info_param_t *param TSRMLS_DC)
+{
+	cl_int err = CL_SUCCESS;
+	zval *zinfo = NULL;
+
+	if (param->type != INFO_TYPE_CALLBACK) {
+		MAKE_STD_ZVAL(zinfo);
+	}
+
+	switch (param->type) {
+		case INFO_TYPE_BITFIELD: {
+			cl_bitfield val = 0;
+			err = get_info(obj1, obj2, param->name, sizeof(cl_bitfield), &val, NULL);
+			if (err == CL_SUCCESS) {
+				ZVAL_LONG(zinfo, (long)val);
+			} 
+		}
+		break;
+
+		case INFO_TYPE_BOOL: {
+			cl_bool val = 0;
+			err = get_info(obj1, obj2, param->name, sizeof(cl_bool), &val, NULL);
+			if (err == CL_SUCCESS) {
+				ZVAL_LONG(zinfo, (long)val);
+			}
+		}
+		break;
+
+		case INFO_TYPE_SIZE: {
+			size_t val = 0;
+			err = get_info(obj1, obj2, param->name, sizeof(size_t), &val, NULL);
+			if (err == CL_SUCCESS) {
+				ZVAL_LONG(zinfo, (long)val);
+			}
+		}
+		break;
+
+		case INFO_TYPE_UINT: {
+			cl_uint val = 0;
+			err = get_info(obj1, obj2, param->name, sizeof(cl_uint), &val, NULL);
+			if (err == CL_SUCCESS) {
+				ZVAL_LONG(zinfo, (long)val);
+			}
+		}
+		break;
+
+		case INFO_TYPE_ULONG: {
+			cl_ulong val = 0;
+			err = get_info(obj1, obj2, param->name, sizeof(cl_ulong), &val, NULL);
+			if (err == CL_SUCCESS) {
+				ZVAL_LONG(zinfo, (long)val);
+			}
+		}
+		break;
+
+		case INFO_TYPE_STRING: {
+			char buf[1024] = { 0 };
+			size_t len = 0;
+			err = get_info(obj1, obj2, param->name, sizeof(buf), buf, &len);
+			if (err == CL_SUCCESS) {
+				ZVAL_STRINGL(zinfo, buf, len, 1);
+			}
+		}
+		break;
+
+		case INFO_TYPE_PLATFORM: {
+			cl_platform_id platform;
+			err = get_info(obj1, obj2, param->name, sizeof(cl_platform_id), &platform, NULL);
+			if (err == CL_SUCCESS) {
+				ZEND_REGISTER_RESOURCE(zinfo, platform, le_platform);
+			}
+		}
+		break;
+
+		case INFO_TYPE_CALLBACK: {
+			zval *entry = get_info_ex(obj1, obj2, param->name TSRMLS_CC);
+			if (entry) {
+				zinfo = entry;
+			}
+		}
+		break;
+	}
+
+	return zinfo;
+}
+
+// }}}
 
 /*
  * Local variables:

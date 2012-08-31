@@ -53,10 +53,44 @@ typedef struct {
 	cl_sampler sampler;
 } phpcl_sampler_t;
 
+typedef enum {
+	INFO_TYPE_BITFIELD = 0,
+	INFO_TYPE_BOOL,
+	INFO_TYPE_SIZE,
+	INFO_TYPE_UINT,
+	INFO_TYPE_ULONG,
+	INFO_TYPE_STRING,
+	INFO_TYPE_PLATFORM,
+	INFO_TYPE_CALLBACK,
+} phpcl_info_type_t;
+
+typedef struct {
+	const char *key;
+	cl_uint name;
+	phpcl_info_type_t type;
+} phpcl_info_param_t;
+
+typedef cl_int (*phpcl_get_info_func_t)(void *,     /* obj1 */
+                                        void *,     /* obj2 */
+                                        cl_uint,    /* name */
+                                        size_t,     /* value_size */
+                                        void *,     /* value */
+                                        size_t *    /* value_size_ret */);
+
+typedef zval * (*phpcl_get_info_ex_func_t)(void *,  /* obj1 */
+                                           void *,  /* obj2 */
+                                           cl_uint  /* name */
+                                           TSRMLS_DC);
+
 /* }}} */
 /* {{{ common functions */
 
 const char *phpcl_errstr(cl_int err);
+
+zval *phpcl_get_info(phpcl_get_info_func_t get_info,
+                     phpcl_get_info_ex_func_t get_info_ex,
+                     void *obj1, void *obj2,
+                     const phpcl_info_param_t *param TSRMLS_DC);
 
 int phpcl_le_platform(void);
 int phpcl_le_device(void);
