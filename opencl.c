@@ -778,7 +778,7 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 	cl_int err = CL_SUCCESS;
 	zval *zinfo = NULL;
 
-	if (param->type != INFO_TYPE_CALLBACK) {
+	if (param->type != INFO_TYPE_EXTRA) {
 		MAKE_STD_ZVAL(zinfo);
 	}
 
@@ -847,7 +847,7 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 		}
 		break;
 
-		case INFO_TYPE_CALLBACK: {
+		case INFO_TYPE_EXTRA: {
 			zval *entry = get_info_ex(obj1, obj2, param->name TSRMLS_CC);
 			if (entry) {
 				zinfo = entry;

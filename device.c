@@ -20,7 +20,7 @@ static const phpcl_info_param_t device_info_params[] = {
 	{ "max_compute_units",             CL_DEVICE_MAX_COMPUTE_UNITS,             INFO_TYPE_UINT      },
 	{ "max_work_item_dimensions",      CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,      INFO_TYPE_UINT      },
 	{ "max_work_group_size",           CL_DEVICE_MAX_WORK_GROUP_SIZE,           INFO_TYPE_SIZE      },
-	{ "max_work_item_sizes",           CL_DEVICE_MAX_WORK_ITEM_SIZES,           INFO_TYPE_CALLBACK  },
+	{ "max_work_item_sizes",           CL_DEVICE_MAX_WORK_ITEM_SIZES,           INFO_TYPE_EXTRA     },
 	{ "preferred_vector_width_char",   CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR,   INFO_TYPE_SIZE      },
 	{ "preferred_vector_width_short",  CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT,  INFO_TYPE_SIZE      },
 	{ "preferred_vector_width_int",    CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT,    INFO_TYPE_SIZE      },

@@ -61,7 +61,7 @@ typedef enum {
 	INFO_TYPE_ULONG,
 	INFO_TYPE_STRING,
 	INFO_TYPE_PLATFORM,
-	INFO_TYPE_CALLBACK,
+	INFO_TYPE_EXTRA,
 } phpcl_info_type_t;
 
 typedef struct {
