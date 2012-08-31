@@ -31,43 +31,43 @@ static PHP_MINIT_FUNCTION(opencl);
 static PHP_MINFO_FUNCTION(opencl);
 
 /* module function helpers */
-static void phpcl_register_constants(int module_number TSRMLS_DC);
-static void phpcl_register_resources(int module_number TSRMLS_DC);
+static void _register_constants(int module_number TSRMLS_DC);
+static void _register_resources(int module_number TSRMLS_DC);
 
 /* resource destructors */
-static void phpcl_free_context(zend_rsrc_list_entry *rsrc TSRMLS_DC);
-static void phpcl_free_command_queue(zend_rsrc_list_entry *rsrc TSRMLS_DC);
-static void phpcl_free_mem(zend_rsrc_list_entry *rsrc TSRMLS_DC);
-static void phpcl_free_program(zend_rsrc_list_entry *rsrc TSRMLS_DC);
-static void phpcl_free_kernel(zend_rsrc_list_entry *rsrc TSRMLS_DC);
-static void phpcl_free_event(zend_rsrc_list_entry *rsrc TSRMLS_DC);
-static void phpcl_free_sampler(zend_rsrc_list_entry *rsrc TSRMLS_DC);
+static void _free_context(zend_rsrc_list_entry *rsrc TSRMLS_DC);
+static void _free_command_queue(zend_rsrc_list_entry *rsrc TSRMLS_DC);
+static void _free_mem(zend_rsrc_list_entry *rsrc TSRMLS_DC);
+static void _free_program(zend_rsrc_list_entry *rsrc TSRMLS_DC);
+static void _free_kernel(zend_rsrc_list_entry *rsrc TSRMLS_DC);
+static void _free_event(zend_rsrc_list_entry *rsrc TSRMLS_DC);
+static void _free_sampler(zend_rsrc_list_entry *rsrc TSRMLS_DC);
 
 /* internal destructors */
-static void phpcl_release_context(phpcl_context_t *ptr TSRMLS_DC);
-static void phpcl_release_command_queue(phpcl_command_queue_t *ptr TSRMLS_DC);
-static void phpcl_release_mem(phpcl_mem_t *ptr TSRMLS_DC);
-static void phpcl_release_program(phpcl_program_t *ptr TSRMLS_DC);
-static void phpcl_release_kernel(phpcl_kernel_t *ptr TSRMLS_DC);
-static void phpcl_release_event(phpcl_event_t *ptr TSRMLS_DC);
-static void phpcl_release_sampler(phpcl_sampler_t *ptr TSRMLS_DC);
+static void _release_context(phpcl_context_t *ptr TSRMLS_DC);
+static void _release_command_queue(phpcl_command_queue_t *ptr TSRMLS_DC);
+static void _release_mem(phpcl_mem_t *ptr TSRMLS_DC);
+static void _release_program(phpcl_program_t *ptr TSRMLS_DC);
+static void _release_kernel(phpcl_kernel_t *ptr TSRMLS_DC);
+static void _release_event(phpcl_event_t *ptr TSRMLS_DC);
+static void _release_sampler(phpcl_sampler_t *ptr TSRMLS_DC);
 
 /* }}} */
 /* {{{ argument informations */
 
 /* platform */
-ZEND_BEGIN_ARG_INFO_EX(arg_info_cl_get_platform_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_get_platform_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, platform)
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
 /* device */
-ZEND_BEGIN_ARG_INFO_EX(arg_info_cl_get_device_ids, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_get_device_ids, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 0)
 	ZEND_ARG_INFO(0, platform)
 	ZEND_ARG_INFO(0, device_type)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arg_info_cl_get_device_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_get_device_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, device)
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
@@ -78,10 +78,10 @@ ZEND_END_ARG_INFO()
 static zend_function_entry phpcl_functions[] = {
 	/* platform */
 	PHP_FE(cl_get_platform_ids,     NULL)
-	PHP_FE(cl_get_platform_info,    arg_info_cl_get_platform_info)
+	PHP_FE(cl_get_platform_info,    arginfo_get_platform_info)
 	/* device */
-	PHP_FE(cl_get_device_ids,       arg_info_cl_get_device_ids)
-	PHP_FE(cl_get_device_info,      arg_info_cl_get_device_info)
+	PHP_FE(cl_get_device_ids,       arginfo_get_device_ids)
+	PHP_FE(cl_get_device_info,      arginfo_get_device_info)
 	/* terminate */
 	{ NULL, NULL, NULL }
 };
@@ -121,8 +121,8 @@ ZEND_GET_MODULE(opencl)
 
 static PHP_MINIT_FUNCTION(opencl)
 {
-	phpcl_register_constants(module_number TSRMLS_CC);
-	phpcl_register_resources(module_number TSRMLS_CC);
+	_register_constants(module_number TSRMLS_CC);
+	_register_resources(module_number TSRMLS_CC);
 	return SUCCESS;
 }
 
@@ -292,12 +292,12 @@ int phpcl_le_sampler(void)
 }
 
 /* }}} */
-/* {{{ phpcl_register_constants() */
+/* {{{ _register_constants() */
 
 #define PHP_CL_REGISTER_CONSTANT(name) \
 	REGISTER_LONG_CONSTANT(#name, name, CONST_PERSISTENT | CONST_CS)
 
-static void phpcl_register_constants(int module_number TSRMLS_DC)
+static void _register_constants(int module_number TSRMLS_DC)
 {
 	/* Error Codes */
 	PHP_CL_REGISTER_CONSTANT(CL_SUCCESS);
@@ -663,13 +663,13 @@ static void phpcl_register_constants(int module_number TSRMLS_DC)
 }
 
 /* }}} */
-/* {{{ phpcl_register_resources() */
+/* {{{ _register_resources() */
 
 #define PHP_CL_REGISTER_RESOURCE(name) \
 	le_##name = zend_register_list_destructors_ex(\
-		phpcl_free_##name, NULL, "cl_" #name, module_number)
+		_free_##name, NULL, "cl_" #name, module_number)
 
-static void phpcl_register_resources(int module_number TSRMLS_DC)
+static void _register_resources(int module_number TSRMLS_DC)
 {
 	le_platform = zend_register_list_destructors_ex(
 		NULL, NULL, "cl_platform", module_number);
@@ -687,81 +687,81 @@ static void phpcl_register_resources(int module_number TSRMLS_DC)
 /* }}} */
 /* {{{ resource destructors */
 
-static void phpcl_free_context(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+static void _free_context(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	phpcl_release_context((phpcl_context_t *)rsrc->ptr TSRMLS_CC);
+	_release_context((phpcl_context_t *)rsrc->ptr TSRMLS_CC);
 }
 
-static void phpcl_free_command_queue(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+static void _free_command_queue(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	phpcl_release_command_queue((phpcl_command_queue_t *)rsrc->ptr TSRMLS_CC);
+	_release_command_queue((phpcl_command_queue_t *)rsrc->ptr TSRMLS_CC);
 }
 
-static void phpcl_free_mem(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+static void _free_mem(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	phpcl_release_mem((phpcl_mem_t *)rsrc->ptr TSRMLS_CC);
+	_release_mem((phpcl_mem_t *)rsrc->ptr TSRMLS_CC);
 }
 
-static void phpcl_free_program(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+static void _free_program(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	phpcl_release_program((phpcl_program_t *)rsrc->ptr TSRMLS_CC);
+	_release_program((phpcl_program_t *)rsrc->ptr TSRMLS_CC);
 }
 
-static void phpcl_free_kernel(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+static void _free_kernel(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	phpcl_release_kernel((phpcl_kernel_t *)rsrc->ptr TSRMLS_CC);
+	_release_kernel((phpcl_kernel_t *)rsrc->ptr TSRMLS_CC);
 }
 
-static void phpcl_free_event(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+static void _free_event(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	phpcl_release_event((phpcl_event_t *)rsrc->ptr TSRMLS_CC);
+	_release_event((phpcl_event_t *)rsrc->ptr TSRMLS_CC);
 }
 
-static void phpcl_free_sampler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+static void _free_sampler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	phpcl_release_sampler((phpcl_sampler_t *)rsrc->ptr TSRMLS_CC);
+	_release_sampler((phpcl_sampler_t *)rsrc->ptr TSRMLS_CC);
 }
 
 /* }}} */
 /* {{{ internal destructors */
 
-static void phpcl_release_context(phpcl_context_t *ptr TSRMLS_DC)
+static void _release_context(phpcl_context_t *ptr TSRMLS_DC)
 {
 	clReleaseContext(ptr->context);
 	efree(ptr);
 }
 
-static void phpcl_release_command_queue(phpcl_command_queue_t *ptr TSRMLS_DC)
+static void _release_command_queue(phpcl_command_queue_t *ptr TSRMLS_DC)
 {
 	clReleaseCommandQueue(ptr->command_queue);
 	efree(ptr);
 }
 
-static void phpcl_release_mem(phpcl_mem_t *ptr TSRMLS_DC)
+static void _release_mem(phpcl_mem_t *ptr TSRMLS_DC)
 {
 	clReleaseMemObject(ptr->mem);
 	efree(ptr);
 }
 
-static void phpcl_release_program(phpcl_program_t *ptr TSRMLS_DC)
+static void _release_program(phpcl_program_t *ptr TSRMLS_DC)
 {
 	clReleaseProgram(ptr->program);
 	efree(ptr);
 }
 
-static void phpcl_release_kernel(phpcl_kernel_t *ptr TSRMLS_DC)
+static void _release_kernel(phpcl_kernel_t *ptr TSRMLS_DC)
 {
 	clReleaseKernel(ptr->kernel);
 	efree(ptr);
 }
 
-static void phpcl_release_event(phpcl_event_t *ptr TSRMLS_DC)
+static void _release_event(phpcl_event_t *ptr TSRMLS_DC)
 {
 	clReleaseEvent(ptr->event);
 	efree(ptr);
 }
 
-static void phpcl_release_sampler(phpcl_sampler_t *ptr TSRMLS_DC)
+static void _release_sampler(phpcl_sampler_t *ptr TSRMLS_DC)
 {
 	clReleaseSampler(ptr->sampler);
 	efree(ptr);

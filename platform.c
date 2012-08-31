@@ -9,8 +9,8 @@
 
 #include "platform.h"
 
-#define get_info_func ((phpcl_get_info_func_t)phpcl_get_platform_info)
-#define get_info_ex_func NULL
+#define get_info ((phpcl_get_info_func_t)_get_platform_info)
+#define get_info_ex NULL
 
 /* {{{ globals */
 
@@ -24,22 +24,22 @@ static const phpcl_info_param_t platform_info_params[] = {
 };
 
 /* }}} */
-/* {{{ phpcl_get_platform_info() */
+/* {{{ _get_platform_info() */
 
-static cl_int phpcl_get_platform_info(cl_platform_id platform,
-                                      void *reserved __attribute__ ((unused)),
-                                      cl_platform_info name,
-                                      size_t value_size,
-                                      void *value,
-                                      size_t *value_size_ret)
+static cl_int _get_platform_info(cl_platform_id platform,
+                                 void *reserved __attribute__ ((unused)),
+                                 cl_platform_info name,
+                                 size_t value_size,
+                                 void *value,
+                                 size_t *value_size_ret)
 {
 	return clGetPlatformInfo(platform, name, value_size, value, value_size_ret);
 }
 
 /* }}} */
-/* {{{ phpcl_get_platform_info_all() */
+/* {{{ _get_platform_info_all() */
 
-static void phpcl_get_platform_info_all(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_platform_info_all(INTERNAL_FUNCTION_PARAMETERS,
 	cl_platform_id platform)
 {
 	const phpcl_info_param_t *param = platform_info_params;
@@ -50,7 +50,7 @@ static void phpcl_get_platform_info_all(INTERNAL_FUNCTION_PARAMETERS,
 	add_assoc_string(return_value, "id", buf, 1);
 
 	while (param->key != NULL) {
-		zval *entry = phpcl_get_info(get_info_func, get_info_ex_func,
+		zval *entry = phpcl_get_info(get_info, get_info_ex,
 		                             platform, NULL, param TSRMLS_CC);
 		if (entry) {
 			add_assoc_zval(return_value, param->key, entry);
@@ -62,9 +62,9 @@ static void phpcl_get_platform_info_all(INTERNAL_FUNCTION_PARAMETERS,
 }
 
 /* }}} */
-/* {{{ phpcl_get_platform_info_by_name() */
+/* {{{ _get_platform_info_by_name() */
 
-static void phpcl_get_platform_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_platform_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
 	cl_platform_id platform, cl_int name)
 {
 	const phpcl_info_param_t *param = platform_info_params;
@@ -73,7 +73,7 @@ static void phpcl_get_platform_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
 
 	while (param->key != NULL) {
 		if (param->name == name) {
-			zval *entry = phpcl_get_info(get_info_func, get_info_ex_func,
+			zval *entry = phpcl_get_info(get_info, get_info_ex,
 			                             platform, NULL, param TSRMLS_CC);
 			if (entry) {
 				RETVAL_ZVAL(entry, 0, 1);
@@ -133,7 +133,7 @@ PHP_FUNCTION(cl_get_platform_ids)
 }
 
 /* }}} */
-/* {{{ array cl_get_platform_info(resource cl_platform_id platform[, int name]) */
+/* {{{ mixed cl_get_platform_info(resource cl_platform_id platform[, int name]) */
 
 PHP_FUNCTION(cl_get_platform_info)
 {
@@ -151,9 +151,9 @@ PHP_FUNCTION(cl_get_platform_info)
 	                    "cl_platform_id", phpcl_le_platform());
 
 	if (ZEND_NUM_ARGS() == 2) {
-		phpcl_get_platform_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, platform, (cl_int)name);
+		_get_platform_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, platform, (cl_int)name);
 	} else {
-		phpcl_get_platform_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, platform);
+		_get_platform_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, platform);
 	}
 }
 

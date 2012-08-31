@@ -9,8 +9,8 @@
 
 #include "device.h"
 
-#define get_info_func ((phpcl_get_info_func_t)phpcl_get_device_info)
-#define get_info_ex_func ((phpcl_get_info_ex_func_t)phpcl_get_device_info_ex)
+#define get_info ((phpcl_get_info_func_t)_get_device_info)
+#define get_info_ex ((phpcl_get_info_ex_func_t)_get_device_info_ex)
 
 /* {{{ globals */
 
@@ -93,24 +93,24 @@ static const phpcl_info_param_t device_info_params[] = {
 };
 
 /* }}} */
-/* {{{ phpcl_get_device_info() */
+/* {{{ _get_device_info() */
 
-static cl_int phpcl_get_device_info(cl_device_id device,
-                                    void *reserved __attribute__ ((unused)),
-                                    cl_device_info name,
-                                    size_t value_size,
-                                    void *value,
-                                    size_t *value_size_ret)
+static cl_int _get_device_info(cl_device_id device,
+                               void *reserved __attribute__ ((unused)),
+                               cl_device_info name,
+                               size_t value_size,
+                               void *value,
+                               size_t *value_size_ret)
 {
 	return clGetDeviceInfo(device, name, value_size, value, value_size_ret);
 }
 
 /* }}} */
-/* {{{ phpcl_get_device_info_ex() */
+/* {{{ _get_device_info_ex() */
 
-static zval *phpcl_get_device_info_ex(cl_device_id device,
-                                      void *reserved,
-                                      cl_device_info name TSRMLS_DC)
+static zval *_get_device_info_ex(cl_device_id device,
+                                 void *reserved,
+                                 cl_device_info name TSRMLS_DC)
 {
 	cl_int err = CL_SUCCESS;
 	zval *zinfo;
@@ -149,9 +149,9 @@ static zval *phpcl_get_device_info_ex(cl_device_id device,
 }
 
 /* }}} */
-/* {{{ phpcl_get_device_info_all() */
+/* {{{ _get_device_info_all() */
 
-static void phpcl_get_device_info_all(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_device_info_all(INTERNAL_FUNCTION_PARAMETERS,
 	cl_device_id device)
 {
 	const phpcl_info_param_t *param = device_info_params;
@@ -162,7 +162,7 @@ static void phpcl_get_device_info_all(INTERNAL_FUNCTION_PARAMETERS,
 	add_assoc_string(return_value, "id", buf, 1);
 
 	while (param->key != NULL) {
-		zval *entry = phpcl_get_info(get_info_func, get_info_ex_func,
+		zval *entry = phpcl_get_info(get_info, get_info_ex,
 		                             device, NULL, param TSRMLS_CC);
 		if (entry) {
 			add_assoc_zval(return_value, param->key, entry);
@@ -174,9 +174,9 @@ static void phpcl_get_device_info_all(INTERNAL_FUNCTION_PARAMETERS,
 }
 
 /* }}} */
-/* {{{ phpcl_get_device_info_by_name() */
+/* {{{ _get_device_info_by_name() */
 
-static void phpcl_get_device_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_device_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
 	cl_device_id device, cl_int name)
 {
 	const phpcl_info_param_t *param = device_info_params;
@@ -185,7 +185,7 @@ static void phpcl_get_device_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
 
 	while (param->key != NULL) {
 		if (param->name == name) {
-			zval *entry = phpcl_get_info(get_info_func, get_info_ex_func,
+			zval *entry = phpcl_get_info(get_info, get_info_ex,
 			                             device, NULL, param TSRMLS_CC);
 			if (entry) {
 				RETVAL_ZVAL(entry, 0, 1);
@@ -260,7 +260,7 @@ PHP_FUNCTION(cl_get_device_ids)
 }
 
 /* }}} */
-/* {{{ array cl_get_device_info(resource cl_device_id device[, int name]) */
+/* {{{ mixed cl_get_device_info(resource cl_device_id device[, int name]) */
 
 PHP_FUNCTION(cl_get_device_info)
 {
@@ -278,9 +278,9 @@ PHP_FUNCTION(cl_get_device_info)
 	                    "cl_device_id", phpcl_le_device());
 
 	if (ZEND_NUM_ARGS() == 2) {
-		phpcl_get_device_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, device, (cl_int)name);
+		_get_device_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, device, (cl_int)name);
 	} else {
-		phpcl_get_device_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, device);
+		_get_device_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, device);
 	}
 }
 
