@@ -9,6 +9,9 @@
 
 #include "device.h"
 
+#define get_info_func ((phpcl_get_info_func_t)phpcl_get_device_info)
+#define get_info_ex_func ((phpcl_get_info_ex_func_t)phpcl_get_device_info_ex)
+
 /* {{{ globals */
 
 static const phpcl_info_param_t device_info_params[] = {
@@ -146,6 +149,54 @@ static zval *phpcl_get_device_info_ex(cl_device_id device,
 }
 
 /* }}} */
+/* {{{ phpcl_get_device_info_all() */
+
+static void phpcl_get_device_info_all(INTERNAL_FUNCTION_PARAMETERS,
+	cl_device_id device)
+{
+	const phpcl_info_param_t *param = device_info_params;
+	char buf[32] = {0};
+
+	array_init_size(return_value, 64);
+	snprintf(buf, sizeof(buf), "%p", device);
+	add_assoc_string(return_value, "id", buf, 1);
+
+	while (param->key != NULL) {
+		zval *entry = phpcl_get_info(get_info_func, get_info_ex_func,
+		                             device, NULL, param TSRMLS_CC);
+		if (entry) {
+			add_assoc_zval(return_value, param->key, entry);
+		} else {
+			add_assoc_null(return_value, param->key);
+		}
+		param++;
+	}
+}
+
+/* }}} */
+/* {{{ phpcl_get_device_info_by_name() */
+
+static void phpcl_get_device_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+	cl_device_id device, cl_int name)
+{
+	const phpcl_info_param_t *param = device_info_params;
+
+	RETVAL_NULL();
+
+	while (param->key != NULL) {
+		if (param->name == name) {
+			zval *entry = phpcl_get_info(get_info_func, get_info_ex_func,
+			                             device, NULL, param TSRMLS_CC);
+			if (entry) {
+				RETVAL_ZVAL(entry, 0, 1);
+			}
+			return;
+		}
+		param++;
+	}
+}
+
+/* }}} */
 /* {{{ array cl_get_device_ids([resource cl_platform_id platform[, int device_type]]) */
 
 PHP_FUNCTION(cl_get_device_ids)
@@ -209,39 +260,27 @@ PHP_FUNCTION(cl_get_device_ids)
 }
 
 /* }}} */
-/* {{{ array cl_get_device_info(resource cl_device_id device) */
+/* {{{ array cl_get_device_info(resource cl_device_id device[, int name]) */
 
 PHP_FUNCTION(cl_get_device_info)
 {
-	const phpcl_info_param_t *param = device_info_params;
 	zval *zid = NULL;
 	cl_device_id device = NULL;
-	char buf[64] = {0};
+	long name = 0;
 
 	RETVAL_FALSE;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	                          "r", &zid) == FAILURE) {
+	                          "r|l", &zid, &name) == FAILURE) {
 		return;
 	}
 	ZEND_FETCH_RESOURCE(device, cl_device_id, &zid, -1,
 	                    "cl_device_id", phpcl_le_device());
 
-	array_init_size(return_value, 64);
-	snprintf(buf, sizeof(buf), "%p", device);
-	add_assoc_string(return_value, "id", buf, 1);
-
-	while (param->key != NULL) {
-		zval *entry = phpcl_get_info(
-			(phpcl_get_info_func_t)phpcl_get_device_info,
-			(phpcl_get_info_ex_func_t)phpcl_get_device_info_ex,
-			device, NULL, param TSRMLS_CC);
-		if (entry) {
-			add_assoc_zval(return_value, param->key, entry);
-		} else {
-			add_assoc_null(return_value, param->key);
-		}
-		param++;
+	if (ZEND_NUM_ARGS() == 2) {
+		phpcl_get_device_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, device, (cl_int)name);
+	} else {
+		phpcl_get_device_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, device);
 	}
 }
 

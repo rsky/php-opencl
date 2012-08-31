@@ -58,6 +58,7 @@ static void phpcl_release_sampler(phpcl_sampler_t *ptr TSRMLS_DC);
 /* platform */
 ZEND_BEGIN_ARG_INFO_EX(arg_info_cl_get_platform_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, platform)
+	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
 /* device */
@@ -68,6 +69,7 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arg_info_cl_get_device_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, device)
+	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
 /* }}} */
@@ -852,6 +854,13 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 			}
 		}
 		break;
+
+		default:
+			ZVAL_NULL(zinfo);
+	}
+
+	if (err != CL_SUCCESS) {
+		ZVAL_NULL(zinfo);
 	}
 
 	return zinfo;
