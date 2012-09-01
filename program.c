@@ -8,6 +8,7 @@
  */
 
 #include "program.h"
+#include "params.h"
 
 #define get_info ((phpcl_get_info_func_t)_get_program_info)
 #define get_info_ex NULL
@@ -39,7 +40,8 @@ static cl_int _get_program_info(cl_program program,
 /* }}} */
 /* {{{ _get_program_info_all() */
 
-static void _get_program_info_all(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_program_info_all(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_program program)
 {
 	const phpcl_info_param_t *param = program_info_params;
@@ -64,7 +66,8 @@ static void _get_program_info_all(INTERNAL_FUNCTION_PARAMETERS,
 /* }}} */
 /* {{{ _get_program_info_by_name() */
 
-static void _get_program_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_program_info_by_name(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_program program, cl_int name)
 {
 	const phpcl_info_param_t *param = program_info_params;
@@ -171,7 +174,6 @@ PHP_FUNCTION(cl_build_program)
 	zval *zdevices = NULL;
 	cl_device_id *devices = NULL;
 	cl_uint num_devices = 0;
-	cl_device_id device = NULL;
 	char *options = NULL;
 	int options_len = 0;
 	zval *zcallback = NULL;
@@ -203,26 +205,16 @@ PHP_FUNCTION(cl_build_program)
 				"%s", phpcl_errstr(errcode));
 			return;
 		}
-	} else if (Z_TYPE_P(zdevices) == IS_RESOURCE) {
-		ZEND_FETCH_RESOURCE(device, cl_device_id, &zdevices, -1,
-		                    "cl_device", phpcl_le_device());
-		devices = emalloc(sizeof(cl_device_id));
-		devices[0] = device;
-		num_devices = 1;
-	} else {
-		/* TODO: support multiple devices */
-		php_error(E_WARNING,
-			"%s() expects parameter 2 to be a valid resource",
-			get_active_function_name(TSRMLS_C));
-		return;
+	} else  {
+		devices = phpcl_get_devicecs(zdevices, 2, &num_devices TSRMLS_CC);
+		if (!devices) {
+			return;
+		}
 	}
 
 	if (zcallback) {
-		if (!zend_is_callable(zcallback, 0, NULL TSRMLS_CC)) {
+		if (!phpcl_is_callable(zcallback, 4 TSRMLS_CC)) {
 			efree(devices);
-			php_error(E_WARNING,
-				"%s() expects parameter 4 to be a valid callback",
-				get_active_function_name(TSRMLS_C));
 			return;
 		}
 	}

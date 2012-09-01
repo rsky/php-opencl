@@ -8,6 +8,7 @@
  */
 
 #include "memory.h"
+#include "params.h"
 
 #define get_info ((phpcl_get_info_func_t)_get_mem_object_info)
 #define get_info_ex NULL
@@ -36,7 +37,8 @@ static cl_int _get_mem_object_info(cl_mem memobj,
 /* }}} */
 /* {{{ _get_mem_object_info_all() */
 
-static void _get_mem_object_info_all(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_mem_object_info_all(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_mem memobj)
 {
 	const phpcl_info_param_t *param = mem_info_params;
@@ -61,7 +63,8 @@ static void _get_mem_object_info_all(INTERNAL_FUNCTION_PARAMETERS,
 /* }}} */
 /* {{{ _get_mem_object_info_by_name() */
 
-static void _get_mem_object_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_mem_object_info_by_name(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_mem memobj, cl_int name)
 {
 	const phpcl_info_param_t *param = mem_info_params;

@@ -8,6 +8,7 @@
  */
 
 #include "context.h"
+#include "params.h"
 
 #define get_info ((phpcl_get_info_func_t)_get_context_info)
 #define get_info_ex NULL
@@ -39,7 +40,8 @@ static cl_int _get_context_info(cl_context context,
 /* }}} */
 /* {{{ _get_context_info_all() */
 
-static void _get_context_info_all(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_context_info_all(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_context context)
 {
 	const phpcl_info_param_t *param = context_info_params;
@@ -64,7 +66,8 @@ static void _get_context_info_all(INTERNAL_FUNCTION_PARAMETERS,
 /* }}} */
 /* {{{ _get_context_info_by_name() */
 
-static void _get_context_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_context_info_by_name(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_context context, cl_int name)
 {
 	const phpcl_info_param_t *param = context_info_params;
@@ -156,7 +159,6 @@ PHP_FUNCTION(cl_create_context)
 	zval *zdevices = NULL;
 	cl_device_id *devices = NULL;
 	cl_uint num_devices = 0;
-	cl_device_id device = NULL;
 	zval *zproperties = NULL;
 	cl_context_properties *properties = NULL;
 	zval *zcallback = NULL;
@@ -173,17 +175,8 @@ PHP_FUNCTION(cl_create_context)
 		return;
 	}
 
-	if (Z_TYPE_P(zdevices) == IS_RESOURCE) {
-		ZEND_FETCH_RESOURCE(device, cl_device_id, &zdevices, -1,
-		                    "cl_device", phpcl_le_device());
-		devices = emalloc(sizeof(cl_device_id));
-		devices[0] = device;
-		num_devices = 1;
-	} else {
-		/* TODO: support multiple devices */
-		php_error(E_WARNING,
-			"%s() expects parameter 1 to be a valid resource",
-			get_active_function_name(TSRMLS_C));
+	devices = phpcl_get_devicecs(zdevices, 1, &num_devices TSRMLS_CC);
+	if (!devices) {
 		return;
 	}
 
@@ -192,11 +185,8 @@ PHP_FUNCTION(cl_create_context)
 	}
 
 	if (zcallback) {
-		if (!zend_is_callable(zcallback, 0, NULL TSRMLS_CC)) {
+		if (!phpcl_is_callable(zcallback, 3 TSRMLS_CC)) {
 			efree(devices);
-			php_error(E_WARNING,
-				"%s() expects parameter 3 to be a valid callback",
-				get_active_function_name(TSRMLS_C));
 			return;
 		}
 	}

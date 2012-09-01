@@ -8,6 +8,7 @@
  */
 
 #include "platform.h"
+#include "params.h"
 
 #define get_info ((phpcl_get_info_func_t)_get_platform_info)
 #define get_info_ex NULL
@@ -39,7 +40,8 @@ static cl_int _get_platform_info(cl_platform_id platform,
 /* }}} */
 /* {{{ _get_platform_info_all() */
 
-static void _get_platform_info_all(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_platform_info_all(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_platform_id platform)
 {
 	const phpcl_info_param_t *param = platform_info_params;
@@ -64,7 +66,8 @@ static void _get_platform_info_all(INTERNAL_FUNCTION_PARAMETERS,
 /* }}} */
 /* {{{ _get_platform_info_by_name() */
 
-static void _get_platform_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_platform_info_by_name(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_platform_id platform, cl_int name)
 {
 	const phpcl_info_param_t *param = platform_info_params;

@@ -8,6 +8,7 @@
  */
 
 #include "device.h"
+#include "params.h"
 
 #define get_info ((phpcl_get_info_func_t)_get_device_info)
 #define get_info_ex ((phpcl_get_info_ex_func_t)_get_device_info_ex)
@@ -151,7 +152,8 @@ static zval *_get_device_info_ex(cl_device_id device,
 /* }}} */
 /* {{{ _get_device_info_all() */
 
-static void _get_device_info_all(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_device_info_all(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_device_id device)
 {
 	const phpcl_info_param_t *param = device_info_params;
@@ -176,7 +178,8 @@ static void _get_device_info_all(INTERNAL_FUNCTION_PARAMETERS,
 /* }}} */
 /* {{{ _get_device_info_by_name() */
 
-static void _get_device_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_device_info_by_name(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_device_id device, cl_int name)
 {
 	const phpcl_info_param_t *param = device_info_params;

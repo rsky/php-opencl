@@ -8,6 +8,7 @@
  */
 
 #include "sampler.h"
+#include "params.h"
 
 #define get_info ((phpcl_get_info_func_t)_get_sampler_info)
 #define get_info_ex NULL
@@ -34,7 +35,8 @@ static cl_int _get_sampler_info(cl_sampler sampler,
 /* }}} */
 /* {{{ _get_sampler_info_all() */
 
-static void _get_sampler_info_all(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_sampler_info_all(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_sampler sampler)
 {
 	const phpcl_info_param_t *param = sampler_info_params;
@@ -59,7 +61,8 @@ static void _get_sampler_info_all(INTERNAL_FUNCTION_PARAMETERS,
 /* }}} */
 /* {{{ _get_sampler_info_by_name() */
 
-static void _get_sampler_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_sampler_info_by_name(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_sampler sampler, cl_int name)
 {
 	const phpcl_info_param_t *param = sampler_info_params;

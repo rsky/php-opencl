@@ -8,6 +8,7 @@
  */
 
 #include "php_opencl.h"
+#include "params.h"
 #include "platform.h"
 #include "device.h"
 #include "context.h"

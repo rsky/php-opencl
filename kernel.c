@@ -8,6 +8,7 @@
  */
 
 #include "kernel.h"
+#include "params.h"
 
 #define get_info ((phpcl_get_info_func_t)_get_kernel_info)
 #define get_info_ex NULL
@@ -34,7 +35,8 @@ static cl_int _get_kernel_info(cl_kernel kernel,
 /* }}} */
 /* {{{ _get_kernel_info_all() */
 
-static void _get_kernel_info_all(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_kernel_info_all(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_kernel kernel)
 {
 	const phpcl_info_param_t *param = kernel_info_params;
@@ -59,7 +61,8 @@ static void _get_kernel_info_all(INTERNAL_FUNCTION_PARAMETERS,
 /* }}} */
 /* {{{ _get_kernel_info_by_name() */
 
-static void _get_kernel_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_kernel_info_by_name(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_kernel kernel, cl_int name)
 {
 	const phpcl_info_param_t *param = kernel_info_params;

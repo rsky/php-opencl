@@ -8,6 +8,7 @@
  */
 
 #include "event.h"
+#include "params.h"
 
 #define get_info ((phpcl_get_info_func_t)_get_event_info)
 #define get_info_ex NULL
@@ -34,7 +35,8 @@ static cl_int _get_event_info(cl_event event,
 /* }}} */
 /* {{{ _get_event_info_all() */
 
-static void _get_event_info_all(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_event_info_all(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_event event)
 {
 	const phpcl_info_param_t *param = event_info_params;
@@ -59,7 +61,8 @@ static void _get_event_info_all(INTERNAL_FUNCTION_PARAMETERS,
 /* }}} */
 /* {{{ _get_event_info_by_name() */
 
-static void _get_event_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
+static void _get_event_info_by_name(
+	INTERNAL_FUNCTION_PARAMETERS,
 	cl_event event, cl_int name)
 {
 	const phpcl_info_param_t *param = event_info_params;
