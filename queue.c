@@ -105,6 +105,52 @@ PHP_FUNCTION(cl_get_command_queue_info)
 }
 
 /* }}} */
+/* {{{ resource cl_command_queue cl_create_command_queue(resource cl_context context[, resource cl_device device[, array properties[, int &errcode]]]) */
+
+PHP_FUNCTION(cl_create_command_queue)
+{
+	cl_int errcode = CL_SUCCESS;
+	cl_command_queue command_queue = NULL;
+	zval *zcontext = NULL;
+	phpcl_context_t *ctx = NULL;
+	zval *zdevice = NULL;
+	cl_device_id device = NULL;
+	long properties = 0;
+	zval *zerrcode = NULL;
+
+	RETVAL_FALSE;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	                          "r|r!lz", &zcontext, &zdevice,
+	                          &properties, &zerrcode) == FAILURE) {
+		return;
+	}
+
+	ZEND_FETCH_RESOURCE(ctx, phpcl_context_t *, &zcontext, -1,
+	                    "cl_context", phpcl_le_context());
+
+	if (zdevice) {
+		ZEND_FETCH_RESOURCE(device, cl_device_id, &zdevice, -1,
+		                    "cl_device", phpcl_le_device());
+	} else {
+		device = ctx->devices[0];
+	}
+
+	command_queue = clCreateCommandQueue(ctx->context, device,
+	                                     (cl_command_queue_properties)properties,
+	                                     &errcode);
+
+	if (zerrcode) {
+		zval_dtor(zerrcode);
+		ZVAL_LONG(zerrcode, (long)errcode);
+	}
+
+	if (command_queue) {
+		ZEND_REGISTER_RESOURCE(return_value, command_queue, phpcl_le_command_queue());
+	}
+}
+
+/* }}} */
 
 /*
  * Local variables:

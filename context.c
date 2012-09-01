@@ -110,38 +110,37 @@ PHP_FUNCTION(cl_get_context_info)
 }
 
 /* }}} */
-/* {{{ resource cl_context cl_create_context(mixed device[, array properties[, callback callback[, mixed user_data[, int &errcode]]]] */
+/* {{{ resource cl_context cl_create_context(mixed device[, array properties[, callback callback[, mixed userdata[, int &errcode]]]]) */
 
 PHP_FUNCTION(cl_create_context)
 {
 	cl_int errcode = CL_SUCCESS;
 	cl_context context = NULL;
-	zval *zdevice = NULL;
-	cl_device_id *devices_ptr = NULL;
-	cl_device_id devices[1] = {NULL};
+	zval *zdevices = NULL;
+	cl_device_id *devices = NULL;
 	cl_uint num_devices = 0;
-	HashTable *properties_ht = NULL;
+	cl_device_id device = NULL;
+	zval *zproperties = NULL;
 	cl_context_properties *properties = NULL;
 	zval *zcallback = NULL;
-	create_context_callback_func_t pfn_notify = NULL;
+	create_context_callback_func_t notify_func = NULL;
 	zval *zdata = NULL;
-	void *user_data = NULL;
+	void *userdata = NULL;
 	zval *zerrcode = NULL;
 
 	RETVAL_FALSE;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	                          "z/|h!z/z/z", &zdevice, &properties_ht,
+	                          "z/|z!/z/z/z", &zdevices, &zproperties,
 	                          &zcallback, &zdata, &zerrcode) == FAILURE) {
 		return;
 	}
 
-	if (Z_TYPE_P(zdevice) == IS_RESOURCE) {
-		cl_device_id device;
-		ZEND_FETCH_RESOURCE(device, cl_device_id, &zdevice, -1,
+	if (Z_TYPE_P(zdevices) == IS_RESOURCE) {
+		ZEND_FETCH_RESOURCE(device, cl_device_id, &zdevices, -1,
 		                    "cl_device", phpcl_le_device());
+		devices = emalloc(sizeof(cl_device_id));
 		devices[0] = device;
-		devices_ptr = devices;
 		num_devices = 1;
 	} else {
 		/* TODO: support multiple devices */
@@ -151,12 +150,13 @@ PHP_FUNCTION(cl_create_context)
 		return;
 	}
 
-	if (properties_ht) {
+	if (zproperties) {
 		/* TODO: support properties */
 	}
 
 	if (zcallback) {
 		if (!zend_is_callable(zcallback, 0, NULL TSRMLS_CC)) {
+			efree(devices);
 			php_error(E_WARNING,
 				"%s() expects parameter 3 to be a valid callback",
 				get_active_function_name(TSRMLS_C));
@@ -164,8 +164,20 @@ PHP_FUNCTION(cl_create_context)
 		}
 	}
 
-	context = clCreateContext(properties, num_devices, devices_ptr,
-	                          pfn_notify, user_data, &errcode);
+	phpcl_context_t *ctx = emalloc(sizeof(phpcl_context_t));
+	ctx->devices = devices;
+	ctx->num_devices = num_devices;
+	ctx->callback = NULL;
+	ctx->data = NULL;
+	if (zcallback) {
+		ctx->callback = zcallback;
+		if (zdata) {
+			ctx->data = zdata;
+		}
+	}
+
+	context = clCreateContext(properties, num_devices, devices,
+	                          notify_func, ctx, &errcode);
 
 	if (zerrcode) {
 		zval_dtor(zerrcode);
@@ -173,17 +185,17 @@ PHP_FUNCTION(cl_create_context)
 	}
 
 	if (context) {
-		phpcl_context_t *ctx = emalloc(sizeof(phpcl_context_t));
 		ctx->context = context;
 		if (zcallback) {
 			Z_ADDREF_P(zcallback);
-			ctx->callback = zcallback;
 			if (zdata) {
 				Z_ADDREF_P(zdata);
-				ctx->data = zdata;
 			}
 		}
 		ZEND_REGISTER_RESOURCE(return_value, ctx, phpcl_le_context());
+	} else {
+		efree(devices);
+		efree(ctx);
 	}
 }
 

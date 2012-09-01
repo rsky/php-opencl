@@ -80,7 +80,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_create_context, ZEND_SEND_BY_VAL, ZEND_RETURN_VAL
 	ZEND_ARG_INFO(0, device)
 	ZEND_ARG_ARRAY_INFO(0, properties, 1)
 	ZEND_ARG_INFO(0, callback)
-	ZEND_ARG_INFO(0, user_data)
+	ZEND_ARG_INFO(0, userdata)
 	ZEND_ARG_INFO(1, errcode)
 ZEND_END_ARG_INFO()
 
@@ -88,6 +88,13 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_get_command_queue_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, command_queue)
 	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_create_command_queue, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(0, context)
+	ZEND_ARG_INFO(0, device)
+	ZEND_ARG_INFO(0, properties)
+	ZEND_ARG_INFO(1, errcode)
 ZEND_END_ARG_INFO()
 
 /* mem */
@@ -140,6 +147,7 @@ static zend_function_entry phpcl_functions[] = {
 	PHP_FE(cl_create_context,           arginfo_create_context)
 	/* command queue */
 	PHP_FE(cl_get_command_queue_info,   arginfo_get_command_queue_info)
+	PHP_FE(cl_create_command_queue,     arginfo_create_command_queue)
 	/* mem */
 	PHP_FE(cl_get_mem_object_info,      arginfo_get_mem_object_info)
 	/*PHP_FE(cl_get_image_info,           arginfo_get_image_info)*/
@@ -155,7 +163,7 @@ static zend_function_entry phpcl_functions[] = {
 	{ NULL, NULL, NULL }
 };
 
-/* }}} phpcl_functions */
+/* }}} */
 /* {{{ cross-extension dependencies */
 
 static zend_module_dep phpcl_deps[] = {
@@ -164,7 +172,7 @@ static zend_module_dep phpcl_deps[] = {
 	{NULL, NULL, NULL, 0}
 };
 
-/* }}} cross-extension dependencies */
+/* }}} */
 /* {{{ opencl_module_entry */
 
 zend_module_entry opencl_module_entry = {
@@ -759,7 +767,8 @@ static void _register_resources(int module_number TSRMLS_DC)
 static void _destroy_context(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	phpcl_context_t *ctx = (phpcl_context_t *)rsrc->ptr;
-	clReleaseContext(ctx->context TSRMLS_CC);
+	clReleaseContext(ctx->context);
+	efree(ctx->devices);
 	if (ctx->callback) {
 		zval_ptr_dtor(&ctx->callback);
 	}
@@ -771,17 +780,17 @@ static void _destroy_context(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 
 static void _destroy_command_queue(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	clReleaseCommandQueue((cl_command_queue)rsrc->ptr TSRMLS_CC);
+	clReleaseCommandQueue((cl_command_queue)rsrc->ptr);
 }
 
 static void _destroy_mem(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	clReleaseMemObject((cl_mem)rsrc->ptr TSRMLS_CC);
+	clReleaseMemObject((cl_mem)rsrc->ptr);
 }
 
 static void _destroy_program(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	clReleaseProgram((cl_program)rsrc->ptr TSRMLS_CC);
+	clReleaseProgram((cl_program)rsrc->ptr);
 }
 
 static void _destroy_kernel(zend_rsrc_list_entry *rsrc TSRMLS_DC)
@@ -791,12 +800,12 @@ static void _destroy_kernel(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 
 static void _destroy_event(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	clReleaseEvent((cl_event)rsrc->ptr TSRMLS_CC);
+	clReleaseEvent((cl_event)rsrc->ptr);
 }
 
 static void _destroy_sampler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	clReleaseSampler((cl_sampler)rsrc->ptr TSRMLS_CC);
+	clReleaseSampler((cl_sampler)rsrc->ptr);
 }
 
 /* }}} */

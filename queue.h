@@ -13,6 +13,7 @@
 #define PHPCL_QUEUE_H
 
 PHP_FUNCTION(cl_get_command_queue_info);
+PHP_FUNCTION(cl_create_command_queue);
 
 #endif
 

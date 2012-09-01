@@ -27,6 +27,8 @@
 
 typedef struct {
 	cl_context context;
+	cl_device_id *devices;
+	cl_uint num_devices;
 	zval *callback;
 	zval *data;
 	zend_fcall_info fci;
