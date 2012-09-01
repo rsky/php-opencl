@@ -135,6 +135,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_get_kernel_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VA
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_create_kernel, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_INFO(0, program)
+	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
 /* event */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_get_event_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, event)
@@ -172,6 +177,7 @@ static zend_function_entry phpcl_functions[] = {
 	PHP_FE(cl_build_program,                arginfo_build_program)
 	/* kernel */
 	PHP_FE(cl_get_kernel_info,              arginfo_get_kernel_info)
+	PHP_FE(cl_create_kernel,                arginfo_create_kernel)
 	/* event */
 	PHP_FE(cl_get_event_info,               arginfo_get_event_info)
 	/* sampler */

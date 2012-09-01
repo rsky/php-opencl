@@ -13,6 +13,7 @@
 #define PHPCL_KERNEL_H
 
 PHP_FUNCTION(cl_get_kernel_info);
+PHP_FUNCTION(cl_create_kernel);
 
 #endif
 

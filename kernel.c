@@ -108,6 +108,36 @@ PHP_FUNCTION(cl_get_kernel_info)
 }
 
 /* }}} */
+/* {{{ resource cl_kernel cl_get_kernel_info(resource cl_program program, string name) */
+
+PHP_FUNCTION(cl_create_kernel)
+{
+	cl_int errcode = CL_SUCCESS;
+	zval *zprogram;
+	phpcl_program_t *prg = NULL;
+	char *kernel_name;
+	int kernel_name_len;
+	cl_kernel kernel = NULL;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	                          "rs", &zprogram, &kernel_name, &kernel_name_len) == FAILURE) {
+		return;
+	}
+
+	ZEND_FETCH_RESOURCE(prg, phpcl_program_t *, &zprogram, -1,
+	                    "cl_kernel", phpcl_le_program());
+
+	kernel = clCreateKernel(prg->program, kernel_name, &errcode);
+	if (kernel) {
+		ZEND_REGISTER_RESOURCE(return_value, kernel, phpcl_le_kernel());
+	}
+	if (errcode != CL_SUCCESS) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		                 "%s", phpcl_errstr(errcode));
+	}
+}
+
+/* }}} */
 
 /*
  * Local variables:
