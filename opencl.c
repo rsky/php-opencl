@@ -114,6 +114,12 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_get_program_info, ZEND_SEND_BY_VAL, ZEND_RETURN_V
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_create_program_with_source, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_INFO(0, context)
+	ZEND_ARG_INFO(0, string)
+	ZEND_ARG_INFO(1, errcode)
+ZEND_END_ARG_INFO()
+
 /* kernel */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_get_kernel_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, kernel)
@@ -137,28 +143,29 @@ ZEND_END_ARG_INFO()
 
 static zend_function_entry phpcl_functions[] = {
 	/* platform */
-	PHP_FE(cl_get_platform_info,        arginfo_get_platform_info)
-	PHP_FE(cl_get_platform_ids,         NULL)
+	PHP_FE(cl_get_platform_info,            arginfo_get_platform_info)
+	PHP_FE(cl_get_platform_ids,             NULL)
 	/* device */
-	PHP_FE(cl_get_device_info,          arginfo_get_device_info)
-	PHP_FE(cl_get_device_ids,           arginfo_get_device_ids)
+	PHP_FE(cl_get_device_info,              arginfo_get_device_info)
+	PHP_FE(cl_get_device_ids,               arginfo_get_device_ids)
 	/* context */
-	PHP_FE(cl_get_context_info,         arginfo_get_context_info)
-	PHP_FE(cl_create_context,           arginfo_create_context)
+	PHP_FE(cl_get_context_info,             arginfo_get_context_info)
+	PHP_FE(cl_create_context,               arginfo_create_context)
 	/* command queue */
-	PHP_FE(cl_get_command_queue_info,   arginfo_get_command_queue_info)
-	PHP_FE(cl_create_command_queue,     arginfo_create_command_queue)
+	PHP_FE(cl_get_command_queue_info,       arginfo_get_command_queue_info)
+	PHP_FE(cl_create_command_queue,         arginfo_create_command_queue)
 	/* mem */
-	PHP_FE(cl_get_mem_object_info,      arginfo_get_mem_object_info)
-	/*PHP_FE(cl_get_image_info,           arginfo_get_image_info)*/
+	PHP_FE(cl_get_mem_object_info,          arginfo_get_mem_object_info)
+	/*PHP_FE(cl_get_image_info,               arginfo_get_image_info)*/
 	/* program */
-	PHP_FE(cl_get_program_info,         arginfo_get_program_info)
+	PHP_FE(cl_get_program_info,             arginfo_get_program_info)
+	PHP_FE(cl_create_program_with_source,   arginfo_create_program_with_source)
 	/* kernel */
-	PHP_FE(cl_get_kernel_info,          arginfo_get_kernel_info)
+	PHP_FE(cl_get_kernel_info,              arginfo_get_kernel_info)
 	/* event */
-	PHP_FE(cl_get_event_info,           arginfo_get_event_info)
+	PHP_FE(cl_get_event_info,               arginfo_get_event_info)
 	/* sampler */
-	PHP_FE(cl_get_sampler_info,         arginfo_get_sampler_info)
+	PHP_FE(cl_get_sampler_info,             arginfo_get_sampler_info)
 	/* terminate */
 	{ NULL, NULL, NULL }
 };
@@ -355,7 +362,7 @@ int phpcl_le_event(void)
 
 int phpcl_le_program(void)
 {
-	return le_platform;
+	return le_program;
 }
 
 int phpcl_le_kernel(void)

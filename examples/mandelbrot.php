@@ -10,3 +10,7 @@ var_dump($context);
 
 $queue = cl_create_command_queue($context);
 var_dump($queue);
+
+$source = __DIR__ . '/mandelbrot.cl';
+$program = cl_create_program_with_source($context, $source, $err);
+var_dump($program, $err);

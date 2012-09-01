@@ -105,6 +105,53 @@ PHP_FUNCTION(cl_get_program_info)
 }
 
 /* }}} */
+/* {{{ resource cl_program cl_create_program_with_source(resource cl_context context, mixed source[, int &errcode]); */
+
+PHP_FUNCTION(cl_create_program_with_source)
+{
+	cl_int errcode = CL_SUCCESS;
+	cl_program program = NULL;
+	zval *zcontext = NULL;
+	phpcl_context_t *ctx = NULL;
+	zval *zstring = NULL;
+	zval *zerrcode = NULL;
+
+	RETVAL_FALSE;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	                          "rz|z", &zcontext, &zstring, &zerrcode) == FAILURE) {
+		return;
+	}
+
+	ZEND_FETCH_RESOURCE(ctx, phpcl_context_t *, &zcontext, -1,
+	                    "cl_context", phpcl_le_context());
+
+	if (Z_TYPE_P(zstring) == IS_STRING) {
+		const char *strings[] = { (const char *)Z_STRVAL_P(zstring) };
+		const size_t lengths[] = { (const size_t)Z_STRLEN_P(zstring) };
+		program = clCreateProgramWithSource(ctx->context, 1, strings, lengths, &errcode);
+	} else if (Z_TYPE_P(zstring) == IS_ARRAY) {
+		/* TODO: support multiple sources
+		cl_uint count = 0;
+		char **strings = NULL;
+		size_t *lengths = NULL;
+		program = clCreateProgramWithSource(ctx->context, count, strings, lengths, &errcode);
+		efree(strings);
+		efree(lengths);
+		*/
+	}
+
+	if (zerrcode) {
+		zval_dtor(zerrcode);
+		ZVAL_LONG(zerrcode, (long)errcode);
+	}
+
+	if (program) {
+		ZEND_REGISTER_RESOURCE(return_value, program, phpcl_le_program());
+	}
+}
+
+/* }}} */
 
 /*
  * Local variables:

@@ -13,6 +13,7 @@
 #define PHPCL_PROGRAM_H
 
 PHP_FUNCTION(cl_get_program_info);
+PHP_FUNCTION(cl_create_program_with_source);
 
 #endif
 
