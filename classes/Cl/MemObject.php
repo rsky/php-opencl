@@ -2,6 +2,6 @@
 namespace Cl;
 use Cl;
 
-class Memory
+class MemObject
 {
 }

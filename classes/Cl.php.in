@@ -1,4 +1,13 @@
 <?php
+use Cl\Platform;
+use Cl\Device;
+use Cl\Context;
+use Cl\CommandQueue;
+use Cl\MemObject;
+use Cl\Program;
+use Cl\Kernel;
+use Cl\Event;
+use Cl\Sampler;
 
 class Cl
 {
