@@ -31,7 +31,7 @@ run-tests.php
 # Numerous always-ignore extensions
 ###################
 *.diff
-*.errcode
+*.err
 *.orig
 *.log
 *.rej
