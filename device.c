@@ -112,7 +112,7 @@ static zval *_get_device_info_ex(cl_device_id device,
                                  void *reserved,
                                  cl_device_info name TSRMLS_DC)
 {
-	cl_int err = CL_SUCCESS;
+	cl_int errcode = CL_SUCCESS;
 	zval *zinfo;
 	MAKE_STD_ZVAL(zinfo);
 
@@ -120,9 +120,9 @@ static zval *_get_device_info_ex(cl_device_id device,
 		cl_uint max_work_item_dimensions = 0;
 		size_t siz, *sizes;
 
-		err = clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
+		errcode = clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
 		                      sizeof(cl_uint), &max_work_item_dimensions, NULL);
-		if (err != CL_SUCCESS) {
+		if (errcode != CL_SUCCESS) {
 			return zinfo;
 		}
 
@@ -132,8 +132,8 @@ static zval *_get_device_info_ex(cl_device_id device,
 			return zinfo;
 		}
 
-		err = clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, siz, sizes, NULL);
-		if (err == CL_SUCCESS) {
+		errcode = clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, siz, sizes, NULL);
+		if (errcode == CL_SUCCESS) {
 			cl_uint i;
 			array_init_size(zinfo, max_work_item_dimensions);
 			for (i = 0; i < max_work_item_dimensions; i++) {
@@ -231,7 +231,7 @@ PHP_FUNCTION(cl_get_device_ids)
 	long ltype = 0L;
 	cl_device_type device_type = CL_DEVICE_TYPE_DEFAULT;
 
-	cl_int err = CL_SUCCESS;
+	cl_int errcode = CL_SUCCESS;
 	cl_uint num_entries = 0;
 	cl_device_id *devices = NULL;
 	cl_uint index = 0;
@@ -250,10 +250,10 @@ PHP_FUNCTION(cl_get_device_ids)
 		device_type = (cl_device_type)ltype;
 	}
 
-	err = clGetDeviceIDs(platform, device_type, 0, NULL, &num_entries);
-	if (err != CL_SUCCESS) {
+	errcode = clGetDeviceIDs(platform, device_type, 0, NULL, &num_entries);
+	if (errcode != CL_SUCCESS) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			"clGetDeviceIDs() failed [%s]", phpcl_errstr(err));
+			"clGetDeviceIDs() failed [%s]", phpcl_errstr(errcode));
 		efree(devices);
 		return;
 	}
@@ -263,10 +263,10 @@ PHP_FUNCTION(cl_get_device_ids)
 		return;
 	}
 
-	err = clGetDeviceIDs(platform, device_type, num_entries, devices, NULL);
-	if (err != CL_SUCCESS) {
+	errcode = clGetDeviceIDs(platform, device_type, num_entries, devices, NULL);
+	if (errcode != CL_SUCCESS) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			"clGetDeviceIDs() failed [%s]", phpcl_errstr(err));
+			"clGetDeviceIDs() failed [%s]", phpcl_errstr(errcode));
 		efree(devices);
 		return;
 	}

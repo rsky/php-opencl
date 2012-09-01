@@ -76,6 +76,14 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_get_context_info, ZEND_SEND_BY_VAL, ZEND_RETURN_V
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_create_context, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(0, device)
+	ZEND_ARG_ARRAY_INFO(0, properties, 1)
+	ZEND_ARG_INFO(0, callback)
+	ZEND_ARG_INFO(0, user_data)
+	ZEND_ARG_INFO(1, errcode)
+ZEND_END_ARG_INFO()
+
 /* command queue */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_get_command_queue_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, command_queue)
@@ -129,6 +137,7 @@ static zend_function_entry phpcl_functions[] = {
 	PHP_FE(cl_get_device_ids,           arginfo_get_device_ids)
 	/* context */
 	PHP_FE(cl_get_context_info,         arginfo_get_context_info)
+	PHP_FE(cl_create_context,           arginfo_create_context)
 	/* command queue */
 	PHP_FE(cl_get_command_queue_info,   arginfo_get_command_queue_info)
 	/* mem */
@@ -196,9 +205,9 @@ static PHP_MINFO_FUNCTION(opencl)
 /* }}} */
 /* {{{ phpcl_errstr() */
 
-const char *phpcl_errstr(cl_int err)
+const char *phpcl_errstr(cl_int errcode)
 {
-	switch(err) {
+	switch(errcode) {
 	case CL_SUCCESS:
 		return "SUCCESS";
 	case CL_DEVICE_NOT_FOUND:
@@ -749,7 +758,15 @@ static void _register_resources(int module_number TSRMLS_DC)
 
 static void _destroy_context(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	clReleaseContext((cl_context)rsrc->ptr TSRMLS_CC);
+	phpcl_context_t *ctx = (phpcl_context_t *)rsrc->ptr;
+	clReleaseContext(ctx->context TSRMLS_CC);
+	if (ctx->callback) {
+		zval_ptr_dtor(&ctx->callback);
+	}
+	if (ctx->data) {
+		zval_ptr_dtor(&ctx->data);
+	}
+	efree(ctx);
 }
 
 static void _destroy_command_queue(zend_rsrc_list_entry *rsrc TSRMLS_DC)
@@ -790,7 +807,7 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
                      void *obj1, void *obj2,
                      const phpcl_info_param_t *param TSRMLS_DC)
 {
-	cl_int err = CL_SUCCESS;
+	cl_int errcode = CL_SUCCESS;
 	zval *zinfo = NULL;
 
 	if (param->type != INFO_TYPE_EXTRA) {
@@ -800,8 +817,8 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 	switch (param->type) {
 		case INFO_TYPE_BITFIELD: {
 			cl_bitfield val = 0;
-			err = get_info(obj1, obj2, param->name, sizeof(cl_bitfield), &val, NULL);
-			if (err == CL_SUCCESS) {
+			errcode = get_info(obj1, obj2, param->name, sizeof(cl_bitfield), &val, NULL);
+			if (errcode == CL_SUCCESS) {
 				ZVAL_LONG(zinfo, (long)val);
 			} 
 		}
@@ -809,8 +826,8 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 
 		case INFO_TYPE_BOOL: {
 			cl_bool val = 0;
-			err = get_info(obj1, obj2, param->name, sizeof(cl_bool), &val, NULL);
-			if (err == CL_SUCCESS) {
+			errcode = get_info(obj1, obj2, param->name, sizeof(cl_bool), &val, NULL);
+			if (errcode == CL_SUCCESS) {
 				ZVAL_LONG(zinfo, (long)val);
 			}
 		}
@@ -818,8 +835,8 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 
 		case INFO_TYPE_SIZE: {
 			size_t val = 0;
-			err = get_info(obj1, obj2, param->name, sizeof(size_t), &val, NULL);
-			if (err == CL_SUCCESS) {
+			errcode = get_info(obj1, obj2, param->name, sizeof(size_t), &val, NULL);
+			if (errcode == CL_SUCCESS) {
 				ZVAL_LONG(zinfo, (long)val);
 			}
 		}
@@ -827,8 +844,8 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 
 		case INFO_TYPE_UINT: {
 			cl_uint val = 0;
-			err = get_info(obj1, obj2, param->name, sizeof(cl_uint), &val, NULL);
-			if (err == CL_SUCCESS) {
+			errcode = get_info(obj1, obj2, param->name, sizeof(cl_uint), &val, NULL);
+			if (errcode == CL_SUCCESS) {
 				ZVAL_LONG(zinfo, (long)val);
 			}
 		}
@@ -836,8 +853,8 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 
 		case INFO_TYPE_ULONG: {
 			cl_ulong val = 0;
-			err = get_info(obj1, obj2, param->name, sizeof(cl_ulong), &val, NULL);
-			if (err == CL_SUCCESS) {
+			errcode = get_info(obj1, obj2, param->name, sizeof(cl_ulong), &val, NULL);
+			if (errcode == CL_SUCCESS) {
 				ZVAL_LONG(zinfo, (long)val);
 			}
 		}
@@ -846,8 +863,8 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 		case INFO_TYPE_STRING: {
 			char buf[1024] = { 0 };
 			size_t len = 0;
-			err = get_info(obj1, obj2, param->name, sizeof(buf), buf, &len);
-			if (err == CL_SUCCESS) {
+			errcode = get_info(obj1, obj2, param->name, sizeof(buf), buf, &len);
+			if (errcode == CL_SUCCESS) {
 				ZVAL_STRINGL(zinfo, buf, len, 1);
 			}
 		}
@@ -855,8 +872,8 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 
 		case INFO_TYPE_PLATFORM: {
 			cl_platform_id platform;
-			err = get_info(obj1, obj2, param->name, sizeof(cl_platform_id), &platform, NULL);
-			if (err == CL_SUCCESS) {
+			errcode = get_info(obj1, obj2, param->name, sizeof(cl_platform_id), &platform, NULL);
+			if (errcode == CL_SUCCESS) {
 				ZEND_REGISTER_RESOURCE(zinfo, platform, le_platform);
 			}
 		}
@@ -874,7 +891,7 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
 			ZVAL_NULL(zinfo);
 	}
 
-	if (err != CL_SUCCESS) {
+	if (errcode != CL_SUCCESS) {
 		ZVAL_NULL(zinfo);
 	}
 

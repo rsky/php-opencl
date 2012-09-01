@@ -13,6 +13,7 @@
 #define PHPCL_CONTEXT_H
 
 PHP_FUNCTION(cl_get_context_info);
+PHP_FUNCTION(cl_create_context);
 
 #endif
 

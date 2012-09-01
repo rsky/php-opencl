@@ -114,7 +114,7 @@ PHP_FUNCTION(cl_get_platform_info)
 
 PHP_FUNCTION(cl_get_platform_ids)
 {
-	cl_int err = CL_SUCCESS;
+	cl_int errcode = CL_SUCCESS;
 	cl_uint num_entries = 0;
 	cl_platform_id *platforms = NULL;
 	cl_uint index = 0;
@@ -125,10 +125,10 @@ PHP_FUNCTION(cl_get_platform_ids)
 		WRONG_PARAM_COUNT;
 	}
 
-	err = clGetPlatformIDs(0, NULL, &num_entries);
-	if (err != CL_SUCCESS) {
+	errcode = clGetPlatformIDs(0, NULL, &num_entries);
+	if (errcode != CL_SUCCESS) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			"clGetPlatformIDs() failed [%s]", phpcl_errstr(err));
+			"clGetPlatformIDs() failed [%s]", phpcl_errstr(errcode));
 	}
 
 	platforms = ecalloc(num_entries, sizeof(cl_platform_id));
@@ -136,10 +136,10 @@ PHP_FUNCTION(cl_get_platform_ids)
 		return;
 	}
 
-	err = clGetPlatformIDs(num_entries, platforms, NULL);
-	if (err != CL_SUCCESS) {
+	errcode = clGetPlatformIDs(num_entries, platforms, NULL);
+	if (errcode != CL_SUCCESS) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			"clGetPlatformIDs() failed [%s]", phpcl_errstr(err));
+			"clGetPlatformIDs() failed [%s]", phpcl_errstr(errcode));
 		efree(platforms);
 		return;
 	}

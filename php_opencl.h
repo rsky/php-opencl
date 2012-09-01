@@ -25,6 +25,14 @@
 
 /* {{{ type definitions */
 
+typedef struct {
+	cl_context context;
+	zval *callback;
+	zval *data;
+	zend_fcall_info fci;
+	zend_fcall_info_cache fcc;
+} phpcl_context_t;
+
 typedef enum {
 	INFO_TYPE_BITFIELD = 0,
 	INFO_TYPE_BOOL,
@@ -57,7 +65,7 @@ typedef zval * (*phpcl_get_info_ex_func_t)(void *,  /* obj1 */
 /* }}} */
 /* {{{ common functions */
 
-const char *phpcl_errstr(cl_int err);
+const char *phpcl_errstr(cl_int errcode);
 
 zval *phpcl_get_info(phpcl_get_info_func_t get_info,
                      phpcl_get_info_ex_func_t get_info_ex,

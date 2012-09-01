@@ -12,6 +12,11 @@
 #define get_info ((phpcl_get_info_func_t)_get_context_info)
 #define get_info_ex NULL
 
+/* {{{ type definitions */
+
+typedef void (*create_context_callback_func_t)(const char *, const void *, size_t, void *);
+
+/* }}} */
 /* {{{ globals */
 
 static const phpcl_info_param_t context_info_params[] = {
@@ -101,6 +106,84 @@ PHP_FUNCTION(cl_get_context_info)
 		_get_context_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, context, (cl_int)name);
 	} else {
 		_get_context_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, context);
+	}
+}
+
+/* }}} */
+/* {{{ resource cl_context cl_create_context(mixed device[, array properties[, callback callback[, mixed user_data[, int &errcode]]]] */
+
+PHP_FUNCTION(cl_create_context)
+{
+	cl_int errcode = CL_SUCCESS;
+	cl_context context = NULL;
+	zval *zdevice = NULL;
+	cl_device_id *devices_ptr = NULL;
+	cl_device_id devices[1] = {NULL};
+	cl_uint num_devices = 0;
+	HashTable *properties_ht = NULL;
+	cl_context_properties *properties = NULL;
+	zval *zcallback = NULL;
+	create_context_callback_func_t pfn_notify = NULL;
+	zval *zdata = NULL;
+	void *user_data = NULL;
+	zval *zerrcode = NULL;
+
+	RETVAL_FALSE;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	                          "z/|h!z/z/z", &zdevice, &properties_ht,
+	                          &zcallback, &zdata, &zerrcode) == FAILURE) {
+		return;
+	}
+
+	if (Z_TYPE_P(zdevice) == IS_RESOURCE) {
+		cl_device_id device;
+		ZEND_FETCH_RESOURCE(device, cl_device_id, &zdevice, -1,
+		                    "cl_device", phpcl_le_device());
+		devices[0] = device;
+		devices_ptr = devices;
+		num_devices = 1;
+	} else {
+		/* TODO: support multiple devices */
+		php_error(E_WARNING,
+			"%s() expects parameter 1 to be a valid resource",
+			get_active_function_name(TSRMLS_C));
+		return;
+	}
+
+	if (properties_ht) {
+		/* TODO: support properties */
+	}
+
+	if (zcallback) {
+		if (!zend_is_callable(zcallback, 0, NULL TSRMLS_CC)) {
+			php_error(E_WARNING,
+				"%s() expects parameter 3 to be a valid callback",
+				get_active_function_name(TSRMLS_C));
+			return;
+		}
+	}
+
+	context = clCreateContext(properties, num_devices, devices_ptr,
+	                          pfn_notify, user_data, &errcode);
+
+	if (zerrcode) {
+		zval_dtor(zerrcode);
+		ZVAL_LONG(zerrcode, (long)errcode);
+	}
+
+	if (context) {
+		phpcl_context_t *ctx = emalloc(sizeof(phpcl_context_t));
+		ctx->context = context;
+		if (zcallback) {
+			Z_ADDREF_P(zcallback);
+			ctx->callback = zcallback;
+			if (zdata) {
+				Z_ADDREF_P(zdata);
+				ctx->data = zdata;
+			}
+		}
+		ZEND_REGISTER_RESOURCE(return_value, ctx, phpcl_le_context());
 	}
 }
 
