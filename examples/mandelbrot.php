@@ -14,3 +14,5 @@ var_dump($queue);
 $source = __DIR__ . '/mandelbrot.cl';
 $program = cl_create_program_with_source($context, $source, $err);
 var_dump($program, $err);
+//cl_build_program($program, $devices[0]);
+cl_build_program($program);

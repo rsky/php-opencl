@@ -29,9 +29,13 @@ typedef struct {
 	cl_context context;
 	zval *callback;
 	zval *data;
-	zend_fcall_info fci;
-	zend_fcall_info_cache fcc;
 } phpcl_context_t;
+
+typedef struct {
+	cl_program program;
+	zval *callback;
+	zval *data;
+} phpcl_program_t;
 
 typedef enum {
 	INFO_TYPE_BITFIELD = 0,

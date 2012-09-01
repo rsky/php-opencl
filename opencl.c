@@ -77,7 +77,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_get_context_info, ZEND_SEND_BY_VAL, ZEND_RETURN_V
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_create_context, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(0, device)
+	ZEND_ARG_INFO(0, devices)
 	ZEND_ARG_ARRAY_INFO(0, properties, 1)
 	ZEND_ARG_INFO(0, callback)
 	ZEND_ARG_INFO(0, userdata)
@@ -120,6 +120,14 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_create_program_with_source, ZEND_SEND_BY_VAL, ZEN
 	ZEND_ARG_INFO(1, errcode)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_build_program, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(0, program)
+	ZEND_ARG_INFO(0, devices)
+	ZEND_ARG_INFO(0, options)
+	ZEND_ARG_INFO(0, callback)
+	ZEND_ARG_INFO(0, userdata)
+ZEND_END_ARG_INFO()
+
 /* kernel */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_get_kernel_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, kernel)
@@ -160,6 +168,7 @@ static zend_function_entry phpcl_functions[] = {
 	/* program */
 	PHP_FE(cl_get_program_info,             arginfo_get_program_info)
 	PHP_FE(cl_create_program_with_source,   arginfo_create_program_with_source)
+	PHP_FE(cl_build_program,                arginfo_build_program)
 	/* kernel */
 	PHP_FE(cl_get_kernel_info,              arginfo_get_kernel_info)
 	/* event */
@@ -796,7 +805,15 @@ static void _destroy_mem(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 
 static void _destroy_program(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	clReleaseProgram((cl_program)rsrc->ptr);
+	phpcl_program_t *prg = (phpcl_program_t *)rsrc->ptr;
+	clReleaseProgram(prg->program);
+	if (prg->callback) {
+		zval_ptr_dtor(&prg->callback);
+	}
+	if (prg->data) {
+		zval_ptr_dtor(&prg->data);
+	}
+	efree(prg);
 }
 
 static void _destroy_kernel(zend_rsrc_list_entry *rsrc TSRMLS_DC)

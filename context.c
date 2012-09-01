@@ -168,7 +168,7 @@ PHP_FUNCTION(cl_create_context)
 	RETVAL_FALSE;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	                          "z/|z!/z/z/z", &zdevices, &zproperties,
+	                          "z|z!/z/z/z", &zdevices, &zproperties,
 	                          &zcallback, &zdata, &zerrcode) == FAILURE) {
 		return;
 	}

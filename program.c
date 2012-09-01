@@ -12,6 +12,11 @@
 #define get_info ((phpcl_get_info_func_t)_get_program_info)
 #define get_info_ex NULL
 
+/* {{{ type definitions */
+
+typedef void (*build_program_callback_func_t)(cl_program, void *);
+
+/* }}} */
 /* {{{ globals */
 
 static const phpcl_info_param_t program_info_params[] = {
@@ -147,8 +152,93 @@ PHP_FUNCTION(cl_create_program_with_source)
 	}
 
 	if (program) {
-		ZEND_REGISTER_RESOURCE(return_value, program, phpcl_le_program());
+		phpcl_program_t *prg = emalloc(sizeof(phpcl_program_t));
+		prg->program = program;
+		prg->callback = NULL;
+		prg->data = NULL;
+		ZEND_REGISTER_RESOURCE(return_value, prg, phpcl_le_program());
 	}
+}
+
+/* }}} */
+/* {{{ void cl_build_program(resource cl_program program[, mixed devices[, string options[, callback callback[, ]]]]) */
+
+PHP_FUNCTION(cl_build_program)
+{
+	cl_int errcode = CL_SUCCESS;
+	zval *zprogram = NULL;
+	phpcl_program_t *prg = NULL;
+	zval *zdevices = NULL;
+	cl_device_id *devices = NULL;
+	cl_uint num_devices = 0;
+	cl_device_id device = NULL;
+	char *options = NULL;
+	int options_len = 0;
+	zval *zcallback = NULL;
+	build_program_callback_func_t notify_func = NULL;
+	zval *zdata = NULL;
+	void *userdata = NULL;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	                          "r|z!/s!z/z/", &zprogram, &zdevices,
+	                          &options, &options_len, &zcallback, &zdata) == FAILURE) {
+		return;
+	}
+
+	ZEND_FETCH_RESOURCE(prg, phpcl_program_t *, &zprogram, -1,
+	                    "cl_program", phpcl_le_program());
+
+	if (!zdevices) {
+		cl_context context = NULL;
+		errcode = clGetProgramInfo(prg->program, CL_PROGRAM_CONTEXT,
+		                           sizeof(cl_context), &context, NULL);
+		if (errcode != CL_SUCCESS) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING,
+				"%s", phpcl_errstr(errcode));
+			return;
+		}
+		devices = phpcl_context_get_devices(context, &num_devices, &errcode);
+		if (!devices) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING,
+				"%s", phpcl_errstr(errcode));
+			return;
+		}
+	} else if (Z_TYPE_P(zdevices) == IS_RESOURCE) {
+		ZEND_FETCH_RESOURCE(device, cl_device_id, &zdevices, -1,
+		                    "cl_device", phpcl_le_device());
+		devices = emalloc(sizeof(cl_device_id));
+		devices[0] = device;
+		num_devices = 1;
+	} else {
+		/* TODO: support multiple devices */
+		php_error(E_WARNING,
+			"%s() expects parameter 2 to be a valid resource",
+			get_active_function_name(TSRMLS_C));
+		return;
+	}
+
+	if (zcallback) {
+		if (!zend_is_callable(zcallback, 0, NULL TSRMLS_CC)) {
+			efree(devices);
+			php_error(E_WARNING,
+				"%s() expects parameter 4 to be a valid callback",
+				get_active_function_name(TSRMLS_C));
+			return;
+		}
+	}
+
+	if (zcallback) {
+		prg->callback = zcallback;
+		Z_ADDREF_P(zcallback);
+		if (zdata) {
+			prg->data = zdata;
+			Z_ADDREF_P(zdata);
+		}
+	}
+
+	clBuildProgram(prg->program, num_devices, devices,
+	               options, notify_func, prg);
+	efree(devices);
 }
 
 /* }}} */
