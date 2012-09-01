@@ -20,7 +20,7 @@ static const phpcl_info_param_t platform_info_params[] = {
 	{ "name",       CL_PLATFORM_NAME,       INFO_TYPE_STRING },
 	{ "vendor",     CL_PLATFORM_VENDOR,     INFO_TYPE_STRING },
 	{ "extensions", CL_PLATFORM_EXTENSIONS, INFO_TYPE_STRING },
-	{ NULL, 0 }
+	{ NULL, 0, 0 }
 };
 
 /* }}} */
@@ -85,6 +85,31 @@ static void _get_platform_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
 }
 
 /* }}} */
+/* {{{ mixed cl_get_platform_info(resource cl_platform platform[, int name]) */
+
+PHP_FUNCTION(cl_get_platform_info)
+{
+	zval *zid = NULL;
+	cl_platform_id platform = NULL;
+	long name = 0;
+
+	RETVAL_FALSE;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	                          "r|l", &zid, &name) == FAILURE) {
+		return;
+	}
+	ZEND_FETCH_RESOURCE(platform, cl_platform_id, &zid, -1,
+	                    "cl_platform", phpcl_le_platform());
+
+	if (ZEND_NUM_ARGS() == 2) {
+		_get_platform_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, platform, (cl_int)name);
+	} else {
+		_get_platform_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, platform);
+	}
+}
+
+/* }}} */
 /* {{{ array cl_get_platform_ids(void) */
 
 PHP_FUNCTION(cl_get_platform_ids)
@@ -130,31 +155,6 @@ PHP_FUNCTION(cl_get_platform_ids)
 	}
 
 	efree(platforms);
-}
-
-/* }}} */
-/* {{{ mixed cl_get_platform_info(resource cl_platform_id platform[, int name]) */
-
-PHP_FUNCTION(cl_get_platform_info)
-{
-	zval *zid = NULL;
-	cl_platform_id platform = NULL;
-	long name = 0;
-
-	RETVAL_FALSE;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	                          "r|l", &zid, &name) == FAILURE) {
-		return;
-	}
-	ZEND_FETCH_RESOURCE(platform, cl_platform_id, &zid, -1,
-	                    "cl_platform_id", phpcl_le_platform());
-
-	if (ZEND_NUM_ARGS() == 2) {
-		_get_platform_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, platform, (cl_int)name);
-	} else {
-		_get_platform_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, platform);
-	}
 }
 
 /* }}} */

@@ -25,34 +25,6 @@
 
 /* {{{ type definitions */
 
-typedef struct {
-	cl_context context;
-} phpcl_context_t;
-
-typedef struct {
-	cl_command_queue command_queue;
-} phpcl_command_queue_t;
-
-typedef struct {
-	cl_mem mem;
-} phpcl_mem_t;
-
-typedef struct {
-	cl_program program;
-} phpcl_program_t;
-
-typedef struct {
-	cl_kernel kernel;
-} phpcl_kernel_t;
-
-typedef struct {
-	cl_event event;
-} phpcl_event_t;
-
-typedef struct {
-	cl_sampler sampler;
-} phpcl_sampler_t;
-
 typedef enum {
 	INFO_TYPE_BITFIELD = 0,
 	INFO_TYPE_BOOL,

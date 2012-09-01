@@ -197,7 +197,32 @@ static void _get_device_info_by_name(INTERNAL_FUNCTION_PARAMETERS,
 }
 
 /* }}} */
-/* {{{ array cl_get_device_ids([resource cl_platform_id platform[, int device_type]]) */
+/* {{{ mixed cl_get_device_info(resource cl_device device[, int name]) */
+
+PHP_FUNCTION(cl_get_device_info)
+{
+	zval *zid = NULL;
+	cl_device_id device = NULL;
+	long name = 0;
+
+	RETVAL_FALSE;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	                          "r|l", &zid, &name) == FAILURE) {
+		return;
+	}
+	ZEND_FETCH_RESOURCE(device, cl_device_id, &zid, -1,
+	                    "cl_device", phpcl_le_device());
+
+	if (ZEND_NUM_ARGS() == 2) {
+		_get_device_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, device, (cl_int)name);
+	} else {
+		_get_device_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, device);
+	}
+}
+
+/* }}} */
+/* {{{ array cl_get_device_ids([resource cl_platform platform[, int device_type]]) */
 
 PHP_FUNCTION(cl_get_device_ids)
 {
@@ -219,7 +244,7 @@ PHP_FUNCTION(cl_get_device_ids)
 	}
 	if (zid) {
 		ZEND_FETCH_RESOURCE(platform, cl_platform_id, &zid, -1,
-		                    "cl_platform_id", phpcl_le_platform());
+		                    "cl_platform", phpcl_le_platform());
 	}
 	if (ZEND_NUM_ARGS() == 2) {
 		device_type = (cl_device_type)ltype;
@@ -257,31 +282,6 @@ PHP_FUNCTION(cl_get_device_ids)
 	}
 
 	efree(devices);
-}
-
-/* }}} */
-/* {{{ mixed cl_get_device_info(resource cl_device_id device[, int name]) */
-
-PHP_FUNCTION(cl_get_device_info)
-{
-	zval *zid = NULL;
-	cl_device_id device = NULL;
-	long name = 0;
-
-	RETVAL_FALSE;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	                          "r|l", &zid, &name) == FAILURE) {
-		return;
-	}
-	ZEND_FETCH_RESOURCE(device, cl_device_id, &zid, -1,
-	                    "cl_device_id", phpcl_le_device());
-
-	if (ZEND_NUM_ARGS() == 2) {
-		_get_device_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, device, (cl_int)name);
-	} else {
-		_get_device_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, device);
-	}
 }
 
 /* }}} */
