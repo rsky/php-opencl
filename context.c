@@ -110,6 +110,43 @@ PHP_FUNCTION(cl_get_context_info)
 }
 
 /* }}} */
+/* {{{ phpcl_context_get_devices() */
+
+cl_device_id *phpcl_context_get_devices(cl_context context,
+                                        cl_uint *num_devices_ret,
+                                        cl_int *errcode_ret)
+{
+	cl_int errcode = CL_SUCCESS;
+	cl_uint num_devices = 0;
+	cl_device_id *devices = NULL;
+
+	errcode = clGetContextInfo(context, CL_CONTEXT_NUM_DEVICES,
+	                           sizeof(cl_uint), &num_devices, NULL);
+	if (errcode != CL_SUCCESS) {
+		if (errcode_ret) {
+			*errcode_ret = errcode;
+		}
+		return NULL;
+	}
+
+	devices = ecalloc(num_devices, sizeof(cl_device_id));
+	errcode = clGetContextInfo(context, CL_CONTEXT_DEVICES,
+	                           num_devices * sizeof(cl_device_id), devices, NULL);
+	if (errcode != CL_SUCCESS) {
+		efree(devices);
+		if (errcode_ret) {
+			*errcode_ret = errcode;
+		}
+		return NULL;
+	}
+
+	if (num_devices_ret) {
+		*num_devices_ret = num_devices;
+	}
+	return devices;
+}
+
+/* }}} */
 /* {{{ resource cl_context cl_create_context(mixed device[, array properties[, callback callback[, mixed userdata[, int &errcode]]]]) */
 
 PHP_FUNCTION(cl_create_context)
@@ -165,8 +202,6 @@ PHP_FUNCTION(cl_create_context)
 	}
 
 	phpcl_context_t *ctx = emalloc(sizeof(phpcl_context_t));
-	ctx->devices = devices;
-	ctx->num_devices = num_devices;
 	ctx->callback = NULL;
 	ctx->data = NULL;
 	if (zcallback) {
@@ -194,9 +229,9 @@ PHP_FUNCTION(cl_create_context)
 		}
 		ZEND_REGISTER_RESOURCE(return_value, ctx, phpcl_le_context());
 	} else {
-		efree(devices);
 		efree(ctx);
 	}
+	efree(devices);
 }
 
 /* }}} */

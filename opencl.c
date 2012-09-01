@@ -775,7 +775,6 @@ static void _destroy_context(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	phpcl_context_t *ctx = (phpcl_context_t *)rsrc->ptr;
 	clReleaseContext(ctx->context);
-	efree(ctx->devices);
 	if (ctx->callback) {
 		zval_ptr_dtor(&ctx->callback);
 	}

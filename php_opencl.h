@@ -27,8 +27,6 @@
 
 typedef struct {
 	cl_context context;
-	cl_device_id *devices;
-	cl_uint num_devices;
 	zval *callback;
 	zval *data;
 	zend_fcall_info fci;
@@ -73,6 +71,10 @@ zval *phpcl_get_info(phpcl_get_info_func_t get_info,
                      phpcl_get_info_ex_func_t get_info_ex,
                      void *obj1, void *obj2,
                      const phpcl_info_param_t *param TSRMLS_DC);
+
+cl_device_id *phpcl_context_get_devices(cl_context context,
+                                        cl_uint *num_devices_ret,
+                                        cl_int *errcode_ret);
 
 int phpcl_le_platform(void);
 int phpcl_le_device(void);

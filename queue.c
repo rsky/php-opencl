@@ -133,7 +133,9 @@ PHP_FUNCTION(cl_create_command_queue)
 		ZEND_FETCH_RESOURCE(device, cl_device_id, &zdevice, -1,
 		                    "cl_device", phpcl_le_device());
 	} else {
-		device = ctx->devices[0];
+		cl_device_id *devices = phpcl_context_get_devices(ctx->context, NULL, NULL);
+		device = devices[0];
+		efree(devices);
 	}
 
 	command_queue = clCreateCommandQueue(ctx->context, device,
