@@ -14,6 +14,7 @@
 
 PHP_FUNCTION(cl_get_mem_object_info);
 /*PHP_FUNCTION(cl_get_image_info);*/
+PHP_FUNCTION(cl_create_buffer);
 
 #endif
 

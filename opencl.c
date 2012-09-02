@@ -109,6 +109,12 @@ ZEND_END_ARG_INFO()
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()*/
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_create_buffer, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 3)
+	ZEND_ARG_INFO(0, context)
+	ZEND_ARG_INFO(0, flags)
+	ZEND_ARG_INFO(0, size)
+ZEND_END_ARG_INFO()
+
 /* program */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_get_program_info, ZEND_SEND_BY_VAL, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, program)
@@ -171,6 +177,7 @@ static zend_function_entry phpcl_functions[] = {
 	/* mem */
 	PHP_FE(cl_get_mem_object_info,          arginfo_get_mem_object_info)
 	/*PHP_FE(cl_get_image_info,               arginfo_get_image_info)*/
+	PHP_FE(cl_create_buffer,                arginfo_create_buffer)
 	/* program */
 	PHP_FE(cl_get_program_info,             arginfo_get_program_info)
 	PHP_FE(cl_create_program_with_source,   arginfo_create_program_with_source)
@@ -798,16 +805,23 @@ static void _destroy_context(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 		zval_ptr_dtor(&ctx->data);
 	}
 	efree(ctx);
+	rsrc->ptr = NULL;
 }
 
 static void _destroy_command_queue(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	clReleaseCommandQueue((cl_command_queue)rsrc->ptr);
+	rsrc->ptr = NULL;
 }
 
 static void _destroy_mem(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-	clReleaseMemObject((cl_mem)rsrc->ptr);
+	phpcl_memobj_t *mem = (phpcl_memobj_t *)rsrc->ptr;
+	clReleaseMemObject(mem->memobj);
+	if (mem->ptr) {
+		efree(mem->ptr);
+	}
+	rsrc->ptr = NULL;
 }
 
 static void _destroy_program(zend_rsrc_list_entry *rsrc TSRMLS_DC)
@@ -821,21 +835,25 @@ static void _destroy_program(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 		zval_ptr_dtor(&prg->data);
 	}
 	efree(prg);
+	rsrc->ptr = NULL;
 }
 
 static void _destroy_kernel(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	clReleaseKernel((cl_kernel)rsrc->ptr TSRMLS_CC);
+	rsrc->ptr = NULL;
 }
 
 static void _destroy_event(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	clReleaseEvent((cl_event)rsrc->ptr);
+	rsrc->ptr = NULL;
 }
 
 static void _destroy_sampler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	clReleaseSampler((cl_sampler)rsrc->ptr);
+	rsrc->ptr = NULL;
 }
 
 /* }}} */

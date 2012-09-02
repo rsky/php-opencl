@@ -32,6 +32,11 @@ typedef struct {
 } phpcl_context_t;
 
 typedef struct {
+	cl_mem memobj;
+	void *ptr;
+} phpcl_memobj_t;
+
+typedef struct {
 	cl_program program;
 	zval *callback;
 	zval *data;

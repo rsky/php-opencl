@@ -90,7 +90,7 @@ static void _get_mem_object_info_by_name(
 PHP_FUNCTION(cl_get_mem_object_info)
 {
 	zval *zid = NULL;
-	cl_mem memobj = NULL;
+	phpcl_memobj_t *mem = NULL;
 	long name = 0;
 
 	RETVAL_FALSE;
@@ -99,17 +99,71 @@ PHP_FUNCTION(cl_get_mem_object_info)
 	                          "r|l", &zid, &name) == FAILURE) {
 		return;
 	}
-	ZEND_FETCH_RESOURCE(memobj, cl_mem, &zid, -1,
+	ZEND_FETCH_RESOURCE(mem, phpcl_memobj_t *, &zid, -1,
 	                    "cl_mem", phpcl_le_mem());
 
 	if (ZEND_NUM_ARGS() == 2) {
-		_get_mem_object_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, memobj, (cl_int)name);
+		_get_mem_object_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, mem->memobj, (cl_int)name);
 	} else {
-		_get_mem_object_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, memobj);
+		_get_mem_object_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, mem->memobj);
 	}
 }
 
 /* }}} */
+/* {{{ _check_mem_flags() */
+
+static void _check_mem_flags(long *flags_arg TSRMLS_DC)
+{
+	cl_mem_flags flags = (cl_mem_flags)(*flags_arg);
+	if (flags & CL_MEM_USE_HOST_PTR) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+			"CL_MEM_USE_HOST_PTR flag is not yet supported.");
+	}
+	if (flags & CL_MEM_ALLOC_HOST_PTR) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+			"CL_MEM_ALLOC_HOST_PTR flag is not yet supported.");
+	}
+	if (flags & CL_MEM_COPY_HOST_PTR) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+			"CL_MEM_COPY_HOST_PTR flag is not yet supported.");
+	}
+	flags = flags & (CL_MEM_READ_WRITE | CL_MEM_WRITE_ONLY | CL_MEM_READ_ONLY);
+	*flags_arg = (long)flags;
+}
+
+/* }}} */
+/* {{{ resource cl_mem cl_create_buffer(resource cl_context context, int flags, int size) */
+
+PHP_FUNCTION(cl_create_buffer)
+{
+	cl_int errcode = CL_SUCCESS;
+	zval *zcontext = NULL;
+	phpcl_context_t *ctx = NULL;
+	long flags = 0;
+	long size = 0;
+	void *host_ptr = NULL;
+	cl_mem memobj = NULL;
+
+	RETVAL_FALSE;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	                          "rll", &zcontext, &flags, &size) == FAILURE) {
+		return;
+	}
+	ZEND_FETCH_RESOURCE(ctx, phpcl_context_t *, &zcontext, -1,
+	                    "cl_context", phpcl_le_context());
+
+	_check_mem_flags(&flags TSRMLS_CC);
+
+	memobj = clCreateBuffer(ctx->context, (cl_mem_flags)flags, (size_t)size,
+	                        host_ptr, &errcode);
+	if (memobj) {
+		phpcl_memobj_t *mem = emalloc(sizeof(phpcl_memobj_t));
+		mem->memobj = memobj;
+		mem->ptr = host_ptr;
+		ZEND_REGISTER_RESOURCE(return_value, mem, phpcl_le_mem());
+	}
+}
 
 /*
  * Local variables:
