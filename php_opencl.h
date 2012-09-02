@@ -101,7 +101,7 @@ typedef enum {
 	/* pointer */
 	C_TYPE_MEM_PTR,
 	C_TYPE_NULL_PTR
-} phpcl_opencl_c_type_t;
+} phpcl_c_type_t;
 
 typedef struct {
 	cl_context context;

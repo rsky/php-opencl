@@ -58,6 +58,25 @@ cl_device_id *phpcl_get_devicecs(zval *zv, int argno, cl_uint *num_devices_ret T
 }
 
 /* }}} */
+/* {{{ phpcl_convert_zval_to_c() */
+
+zend_bool phpcl_convert_zval_to_c(zval *zv, phpcl_c_type_t type,
+	void **value_ptr_ret, size_t *size_ret TSRMLS_DC)
+{
+	/* not yet implemented */
+	return 0;
+}
+
+/* }}} */
+/* {{{ phpcl_convert_c_to_zval() */
+
+zval *phpcl_convert_c_to_zval(void *value_ptr, phpcl_c_type_t type TSRMLS_DC)
+{
+	/* not yet implemented */
+	return NULL;
+}
+
+/* }}} */
 
 /*
  * Local variables:
