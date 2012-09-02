@@ -93,7 +93,7 @@ static void _get_program_info_by_name(
 PHP_FUNCTION(cl_get_program_info)
 {
 	zval *zid = NULL;
-	cl_program program = NULL;
+	phpcl_program_t *prg = NULL;
 	long name = 0;
 
 	RETVAL_FALSE;
@@ -102,13 +102,13 @@ PHP_FUNCTION(cl_get_program_info)
 	                          "r|l", &zid, &name) == FAILURE) {
 		return;
 	}
-	ZEND_FETCH_RESOURCE(program, cl_program, &zid, -1,
+	ZEND_FETCH_RESOURCE(prg, phpcl_program_t *, &zid, -1,
 	                    "cl_program", phpcl_le_program());
 
 	if (ZEND_NUM_ARGS() == 2) {
-		_get_program_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, program, (cl_int)name);
+		_get_program_info_by_name(INTERNAL_FUNCTION_PARAM_PASSTHRU, prg->program, (cl_int)name);
 	} else {
-		_get_program_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, program);
+		_get_program_info_all(INTERNAL_FUNCTION_PARAM_PASSTHRU, prg->program);
 	}
 }
 
