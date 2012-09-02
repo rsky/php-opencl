@@ -113,14 +113,15 @@ PHP_FUNCTION(cl_get_kernel_info)
 PHP_FUNCTION(cl_create_kernel)
 {
 	cl_int errcode = CL_SUCCESS;
-	zval *zprogram;
+	zval *zprogram = NULL;
 	phpcl_program_t *prg = NULL;
-	char *kernel_name;
-	int kernel_name_len;
+	char *kernel_name = NULL;
+	int kernel_name_len = 0;
 	cl_kernel kernel = NULL;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	                          "rs", &zprogram, &kernel_name, &kernel_name_len) == FAILURE) {
+	                          "rs", &zprogram, &kernel_name,
+	                          &kernel_name_len) == FAILURE) {
 		return;
 	}
 
