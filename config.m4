@@ -37,9 +37,13 @@ if test "$PHP_OPENCL" != "no"; then
 
   export LIBS="$OLD_LIBS"
 
+  PHP_REQUIRE_CXX()
+
   PHPCL_SOURCES="opencl.c params.c"
   PHPCL_SOURCES="$PHPCL_SOURCES platform.c device.c context.c queue.c"
   PHPCL_SOURCES="$PHPCL_SOURCES memory.c program.c kernel.c event.c sampler.c"
+  PHPCL_SOURCES="$PHPCL_SOURCES kernel_arg.cxx"
+
   PHP_SUBST(OPENCL_SHARED_LIBADD)
-  PHP_NEW_EXTENSION(opencl, $PHPCL_SOURCES, $ext_shared)
+  PHP_NEW_EXTENSION(opencl, $PHPCL_SOURCES, $ext_shared, "", "", 1)
 fi
