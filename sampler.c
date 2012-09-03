@@ -85,7 +85,7 @@ static void _get_sampler_info_by_name(
 /* }}} */
 /* {{{ mixed cl_get_sampler_info(resource cl_sampler sampler[, int name]) */
 
-PHP_FUNCTION(cl_get_sampler_info)
+PHPCL_FUNCTION(cl_get_sampler_info)
 {
 	zval *zid = NULL;
 	cl_sampler sampler = NULL;

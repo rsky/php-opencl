@@ -11,10 +11,12 @@
 
 #ifndef PHPCL_KERNEL_H
 #define PHPCL_KERNEL_H
+BEGIN_EXTERN_C()
 
-PHP_FUNCTION(cl_get_kernel_info);
-PHP_FUNCTION(cl_create_kernel);
+PHPCL_FUNCTION(cl_get_kernel_info);
+PHPCL_FUNCTION(cl_create_kernel);
 
+END_EXTERN_C()
 #endif
 
 /*

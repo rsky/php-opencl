@@ -11,11 +11,13 @@
 
 #ifndef PHPCL_PROGRAM_H
 #define PHPCL_PROGRAM_H
+BEGIN_EXTERN_C()
 
-PHP_FUNCTION(cl_get_program_info);
-PHP_FUNCTION(cl_create_program_with_source);
-PHP_FUNCTION(cl_build_program);
+PHPCL_FUNCTION(cl_get_program_info);
+PHPCL_FUNCTION(cl_create_program_with_source);
+PHPCL_FUNCTION(cl_build_program);
 
+END_EXTERN_C()
 #endif
 
 /*

@@ -11,10 +11,12 @@
 
 #ifndef PHPCL_DEVICE_H
 #define PHPCL_DEVICE_H
+BEGIN_EXTERN_C()
 
-PHP_FUNCTION(cl_get_device_ids);
-PHP_FUNCTION(cl_get_device_info);
+PHPCL_FUNCTION(cl_get_device_ids);
+PHPCL_FUNCTION(cl_get_device_info);
 
+END_EXTERN_C()
 #endif
 
 /*

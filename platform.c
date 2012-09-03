@@ -90,7 +90,7 @@ static void _get_platform_info_by_name(
 /* }}} */
 /* {{{ mixed cl_get_platform_info(resource cl_platform platform[, int name]) */
 
-PHP_FUNCTION(cl_get_platform_info)
+PHPCL_FUNCTION(cl_get_platform_info)
 {
 	zval *zid = NULL;
 	cl_platform_id platform = NULL;
@@ -115,7 +115,7 @@ PHP_FUNCTION(cl_get_platform_info)
 /* }}} */
 /* {{{ array cl_get_platform_ids(void) */
 
-PHP_FUNCTION(cl_get_platform_ids)
+PHPCL_FUNCTION(cl_get_platform_ids)
 {
 	cl_int errcode = CL_SUCCESS;
 	cl_uint num_entries = 0;

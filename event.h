@@ -11,9 +11,11 @@
 
 #ifndef PHPCL_EVENT_H
 #define PHPCL_EVENT_H
+BEGIN_EXTERN_C()
 
-PHP_FUNCTION(cl_get_event_info);
+PHPCL_FUNCTION(cl_get_event_info);
 
+END_EXTERN_C()
 #endif
 
 /*

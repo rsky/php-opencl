@@ -85,7 +85,7 @@ static void _get_command_queue_info_by_name(
 /* }}} */
 /* {{{ mixed cl_get_command_queue_info(resource cl_command_queue command_queue[, int name]) */
 
-PHP_FUNCTION(cl_get_command_queue_info)
+PHPCL_FUNCTION(cl_get_command_queue_info)
 {
 	zval *zid = NULL;
 	cl_command_queue command_queue = NULL;
@@ -110,7 +110,7 @@ PHP_FUNCTION(cl_get_command_queue_info)
 /* }}} */
 /* {{{ resource cl_command_queue cl_create_command_queue(resource cl_context context[, resource cl_device device[, array properties[, int &errcode]]]) */
 
-PHP_FUNCTION(cl_create_command_queue)
+PHPCL_FUNCTION(cl_create_command_queue)
 {
 	cl_int errcode = CL_SUCCESS;
 	cl_command_queue command_queue = NULL;

@@ -11,7 +11,8 @@
 
 /* {{{ phpcl_is_callable() */
 
-zend_bool phpcl_is_callable(zval *zv, int argno TSRMLS_DC)
+PHPCL_LOCAL zend_bool
+phpcl_is_callable(zval *zv, int argno TSRMLS_DC)
 {
 	if (!zend_is_callable(zv, 0, NULL TSRMLS_CC)) {
 		if (argno > 0) {
@@ -28,7 +29,8 @@ zend_bool phpcl_is_callable(zval *zv, int argno TSRMLS_DC)
 /* }}} */
 /* {{{ phpcl_get_devicecs() */
 
-cl_device_id *phpcl_get_devicecs(zval *zv, int argno, cl_uint *num_devices_ret TSRMLS_DC)
+PHPCL_LOCAL cl_device_id *
+phpcl_get_devicecs(zval *zv, int argno, cl_uint *num_devices_ret TSRMLS_DC)
 {
 	cl_device_id *devices = NULL;
 	cl_uint num_devices = 0;
@@ -55,25 +57,6 @@ cl_device_id *phpcl_get_devicecs(zval *zv, int argno, cl_uint *num_devices_ret T
 		*num_devices_ret = num_devices;
 	}
 	return devices;
-}
-
-/* }}} */
-/* {{{ phpcl_convert_zval_to_c() */
-
-zend_bool phpcl_convert_zval_to_c(zval *zv, phpcl_c_type_t type,
-	void **value_ptr_ret, size_t *size_ret TSRMLS_DC)
-{
-	/* not yet implemented */
-	return 0;
-}
-
-/* }}} */
-/* {{{ phpcl_convert_c_to_zval() */
-
-zval *phpcl_convert_c_to_zval(void *value_ptr, phpcl_c_type_t type TSRMLS_DC)
-{
-	/* not yet implemented */
-	return NULL;
 }
 
 /* }}} */

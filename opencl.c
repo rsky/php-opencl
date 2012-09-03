@@ -308,10 +308,11 @@ static void _destroy_sampler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 /* }}} */
 /* {{{ phpcl_get_info() */
 
-zval *phpcl_get_info(phpcl_get_info_func_t get_info,
-                     phpcl_get_info_ex_func_t get_info_ex,
-                     void *obj1, void *obj2,
-                     const phpcl_info_param_t *param TSRMLS_DC)
+PHPCL_LOCAL zval *
+phpcl_get_info(phpcl_get_info_func_t get_info,
+               phpcl_get_info_ex_func_t get_info_ex,
+               void *obj1, void *obj2,
+               const phpcl_info_param_t *param TSRMLS_DC)
 {
 	cl_int errcode = CL_SUCCESS;
 	zval *zinfo = NULL;

@@ -11,10 +11,12 @@
 
 #ifndef PHPCL_QUEUE_H
 #define PHPCL_QUEUE_H
+BEGIN_EXTERN_C()
 
-PHP_FUNCTION(cl_get_command_queue_info);
-PHP_FUNCTION(cl_create_command_queue);
+PHPCL_FUNCTION(cl_get_command_queue_info);
+PHPCL_FUNCTION(cl_create_command_queue);
 
+END_EXTERN_C()
 #endif
 
 /*

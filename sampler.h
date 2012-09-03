@@ -11,9 +11,11 @@
 
 #ifndef PHPCL_SAMPLER_H
 #define PHPCL_SAMPLER_H
+BEGIN_EXTERN_C()
 
-PHP_FUNCTION(cl_get_sampler_info);
+PHPCL_FUNCTION(cl_get_sampler_info);
 
+END_EXTERN_C()
 #endif
 
 /*

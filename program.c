@@ -90,7 +90,7 @@ static void _get_program_info_by_name(
 /* }}} */
 /* {{{ mixed cl_get_program_info(resource cl_program program[, int name]) */
 
-PHP_FUNCTION(cl_get_program_info)
+PHPCL_FUNCTION(cl_get_program_info)
 {
 	zval *zid = NULL;
 	phpcl_program_t *prg = NULL;
@@ -115,7 +115,7 @@ PHP_FUNCTION(cl_get_program_info)
 /* }}} */
 /* {{{ resource cl_program cl_create_program_with_source(resource cl_context context, mixed source[, int &errcode]); */
 
-PHP_FUNCTION(cl_create_program_with_source)
+PHPCL_FUNCTION(cl_create_program_with_source)
 {
 	cl_int errcode = CL_SUCCESS;
 	cl_program program = NULL;
@@ -166,7 +166,7 @@ PHP_FUNCTION(cl_create_program_with_source)
 /* }}} */
 /* {{{ void cl_build_program(resource cl_program program[, mixed devices[, string options[, callback callback[, ]]]]) */
 
-PHP_FUNCTION(cl_build_program)
+PHPCL_FUNCTION(cl_build_program)
 {
 	cl_int errcode = CL_SUCCESS;
 	zval *zprogram = NULL;

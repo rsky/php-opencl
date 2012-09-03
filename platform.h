@@ -11,10 +11,12 @@
 
 #ifndef PHPCL_PLATFORM_H
 #define PHPCL_PLATFORM_H
+BEGIN_EXTERN_C()
 
-PHP_FUNCTION(cl_get_platform_ids);
-PHP_FUNCTION(cl_get_platform_info);
+PHPCL_FUNCTION(cl_get_platform_ids);
+PHPCL_FUNCTION(cl_get_platform_info);
 
+END_EXTERN_C()
 #endif
 
 /*

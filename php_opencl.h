@@ -21,7 +21,16 @@
 #include <Zend/zend_extensions.h>
 #include <OpenCL/opencl.h>
 
+BEGIN_EXTERN_C()
+
 #define PHPCL_VERSION "0.0.1"
+
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define PHPCL_LOCAL __attribute__((visibility("hidden")))
+#else
+#define PHPCL_LOCAL
+#endif
+#define PHPCL_FUNCTION(name) PHPCL_LOCAL PHP_FUNCTION(name)
 
 /* {{{ type definitions */
 
@@ -154,14 +163,16 @@ typedef zval * (*phpcl_get_info_ex_func_t)(void *,  /* obj1 */
 
 const char *phpcl_errstr(cl_int errcode);
 
-zval *phpcl_get_info(phpcl_get_info_func_t get_info,
-                     phpcl_get_info_ex_func_t get_info_ex,
-                     void *obj1, void *obj2,
-                     const phpcl_info_param_t *param TSRMLS_DC);
+PHPCL_LOCAL zval *
+phpcl_get_info(phpcl_get_info_func_t get_info,
+               phpcl_get_info_ex_func_t get_info_ex,
+               void *obj1, void *obj2,
+               const phpcl_info_param_t *param TSRMLS_DC);
 
-cl_device_id *phpcl_context_get_devices(cl_context context,
-                                        cl_uint *num_devices_ret,
-                                        cl_int *errcode_ret);
+PHPCL_LOCAL cl_device_id *
+phpcl_context_get_devices(cl_context context,
+                          cl_uint *num_devices_ret,
+                          cl_int *errcode_ret);
 
 int phpcl_le_platform(void);
 int phpcl_le_device(void);
@@ -174,6 +185,8 @@ int phpcl_le_kernel(void);
 int phpcl_le_sampler(void);
 
 /* }}} */
+
+END_EXTERN_C()
 
 #endif /* PHP_OPENCL_H */
 

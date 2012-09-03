@@ -85,7 +85,7 @@ static void _get_kernel_info_by_name(
 /* }}} */
 /* {{{ mixed cl_get_kernel_info(resource cl_kernel kernel[, int name]) */
 
-PHP_FUNCTION(cl_get_kernel_info)
+PHPCL_FUNCTION(cl_get_kernel_info)
 {
 	zval *zid = NULL;
 	cl_kernel kernel = NULL;
@@ -110,7 +110,7 @@ PHP_FUNCTION(cl_get_kernel_info)
 /* }}} */
 /* {{{ resource cl_kernel cl_get_kernel_info(resource cl_program program, string name) */
 
-PHP_FUNCTION(cl_create_kernel)
+PHPCL_FUNCTION(cl_create_kernel)
 {
 	cl_int errcode = CL_SUCCESS;
 	zval *zprogram = NULL;

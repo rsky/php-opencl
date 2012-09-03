@@ -11,10 +11,12 @@
 
 #ifndef PHPCL_CONTEXT_H
 #define PHPCL_CONTEXT_H
+BEGIN_EXTERN_C()
 
-PHP_FUNCTION(cl_get_context_info);
-PHP_FUNCTION(cl_create_context);
+PHPCL_FUNCTION(cl_get_context_info);
+PHPCL_FUNCTION(cl_create_context);
 
+END_EXTERN_C()
 #endif
 
 /*

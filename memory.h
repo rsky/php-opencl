@@ -11,11 +11,13 @@
 
 #ifndef PHPCL_MEMORY_H
 #define PHPCL_MEMORY_H
+BEGIN_EXTERN_C()
 
-PHP_FUNCTION(cl_get_mem_object_info);
-/*PHP_FUNCTION(cl_get_image_info);*/
-PHP_FUNCTION(cl_create_buffer);
+PHPCL_FUNCTION(cl_get_mem_object_info);
+/*PHPCL_FUNCTION(cl_get_image_info);*/
+PHPCL_FUNCTION(cl_create_buffer);
 
+END_EXTERN_C()
 #endif
 
 /*

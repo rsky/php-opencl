@@ -11,17 +11,15 @@
 
 #ifndef PHPCL_PARAMS_H
 #define PHPCL_PARAMS_H
+BEGIN_EXTERN_C()
 
-zend_bool phpcl_is_callable(zval *zv, int argno TSRMLS_DC);
+PHPCL_LOCAL zend_bool
+phpcl_is_callable(zval *zv, int argno TSRMLS_DC);
 
-cl_device_id *phpcl_get_devicecs(zval *zv, int argno,
-	cl_uint *num_devices_ret TSRMLS_DC);
+PHPCL_LOCAL cl_device_id *
+phpcl_get_devicecs(zval *zv, int argno, cl_uint *num_devices_ret TSRMLS_DC);
 
-zend_bool phpcl_convert_zval_to_c(zval *zv, phpcl_c_type_t type,
-	void **value_ptr_ret, size_t *size_ret TSRMLS_DC);
-
-zval *phpcl_convert_c_to_zval(void *value_ptr, phpcl_c_type_t type TSRMLS_DC);
-
+END_EXTERN_C()
 #endif
 
 /*

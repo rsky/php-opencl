@@ -202,7 +202,7 @@ static void _get_device_info_by_name(
 /* }}} */
 /* {{{ mixed cl_get_device_info(resource cl_device device[, int name]) */
 
-PHP_FUNCTION(cl_get_device_info)
+PHPCL_FUNCTION(cl_get_device_info)
 {
 	zval *zid = NULL;
 	cl_device_id device = NULL;
@@ -227,7 +227,7 @@ PHP_FUNCTION(cl_get_device_info)
 /* }}} */
 /* {{{ array cl_get_device_ids([resource cl_platform platform[, int device_type]]) */
 
-PHP_FUNCTION(cl_get_device_ids)
+PHPCL_FUNCTION(cl_get_device_ids)
 {
 	zval *zid = NULL;
 	cl_platform_id platform = NULL;

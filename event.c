@@ -85,7 +85,7 @@ static void _get_event_info_by_name(
 /* }}} */
 /* {{{ mixed cl_get_event_info(resource cl_event event[, int name]) */
 
-PHP_FUNCTION(cl_get_event_info)
+PHPCL_FUNCTION(cl_get_event_info)
 {
 	zval *zid = NULL;
 	cl_event event = NULL;

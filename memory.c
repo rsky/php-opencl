@@ -87,7 +87,7 @@ static void _get_mem_object_info_by_name(
 /* }}} */
 /* {{{ mixed cl_get_mem_object_info(resource cl_mem memobj[, int name]) */
 
-PHP_FUNCTION(cl_get_mem_object_info)
+PHPCL_FUNCTION(cl_get_mem_object_info)
 {
 	zval *zid = NULL;
 	phpcl_memobj_t *mem = NULL;
@@ -134,7 +134,7 @@ static void _check_mem_flags(long *flags_arg TSRMLS_DC)
 /* }}} */
 /* {{{ resource cl_mem cl_create_buffer(resource cl_context context, int flags, int size) */
 
-PHP_FUNCTION(cl_create_buffer)
+PHPCL_FUNCTION(cl_create_buffer)
 {
 	cl_int errcode = CL_SUCCESS;
 	zval *zcontext = NULL;

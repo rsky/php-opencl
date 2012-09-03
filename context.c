@@ -90,7 +90,7 @@ static void _get_context_info_by_name(
 /* }}} */
 /* {{{ mixed cl_get_context_info(resource cl_context context[, int name]) */
 
-PHP_FUNCTION(cl_get_context_info)
+PHPCL_FUNCTION(cl_get_context_info)
 {
 	zval *zid = NULL;
 	cl_context context = NULL;
@@ -115,9 +115,10 @@ PHP_FUNCTION(cl_get_context_info)
 /* }}} */
 /* {{{ phpcl_context_get_devices() */
 
-cl_device_id *phpcl_context_get_devices(cl_context context,
-                                        cl_uint *num_devices_ret,
-                                        cl_int *errcode_ret)
+PHPCL_LOCAL cl_device_id *
+phpcl_context_get_devices(cl_context context,
+                          cl_uint *num_devices_ret,
+                          cl_int *errcode_ret)
 {
 	cl_int errcode = CL_SUCCESS;
 	cl_uint num_devices = 0;
@@ -152,7 +153,7 @@ cl_device_id *phpcl_context_get_devices(cl_context context,
 /* }}} */
 /* {{{ resource cl_context cl_create_context(mixed device[, array properties[, callback callback[, mixed userdata[, int &errcode]]]]) */
 
-PHP_FUNCTION(cl_create_context)
+PHPCL_FUNCTION(cl_create_context)
 {
 	cl_int errcode = CL_SUCCESS;
 	cl_context context = NULL;
