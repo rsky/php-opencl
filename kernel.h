@@ -17,8 +17,8 @@ PHPCL_FUNCTION(cl_get_kernel_info);
 PHPCL_FUNCTION(cl_create_kernel);
 
 PHPCL_LOCAL cl_int
-php_cl_set_kernel_arg(cl_kernel kernel, cl_uint arg_index,
-                      zval *arg_value, phpcl_c_type_t type TSRMLS_DC);
+phpcl_set_kernel_arg(cl_kernel kernel, cl_uint arg_index,
+                     zval *arg_value, phpcl_c_type_t type TSRMLS_DC);
 
 END_EXTERN_C()
 #endif
